@@ -254,9 +254,9 @@ const ScoreTable: React.FC = () => {
 
     const getRowBgColor = (row: IScore) => {
         if ((row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) || row.scoreT10Original !== undefined) {
-            return 'bg-emerald-500/10 dark:bg-emerald-500/5 hover:bg-emerald-500/20';
+            return 'border-l-4 border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10 hover:bg-emerald-500/15';
         }
-        return 'hover:bg-muted/50';
+        return 'border-l-4 border-l-transparent hover:bg-muted/50';
     };
 
     return (
@@ -328,7 +328,7 @@ const ScoreTable: React.FC = () => {
                                             {row.getVisibleCells().map((cell) => {
                                                 const styleClass = columnStyleMap[cell.column.id] || '';
                                                 return (
-                                                    <TableCell key={cell.id} className={cn("p-2 border-r last:border-0 align-middle", styleClass)}>
+                                                    <TableCell key={cell.id} className={cn("p-2 align-middle", styleClass)}>
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </TableCell>
                                                 );
@@ -377,7 +377,7 @@ const ScoreTable: React.FC = () => {
                                                 {row.getVisibleCells().map((cell) => {
                                                     const styleClass = columnStyleMap[cell.column.id] || '';
                                                     return (
-                                                        <TableCell key={cell.id} className={cn("p-2 border-r last:border-0 align-middle", styleClass)}>
+                                                        <TableCell key={cell.id} className={cn("p-2 align-middle", styleClass)}>
                                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                         </TableCell>
                                                     );
