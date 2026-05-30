@@ -124,7 +124,7 @@ const RecommendDialog: React.FC = () => {
 
     return (
         <Dialog open={dialogs.recommend} onOpenChange={handleClose}>
-            <DialogContent className="max-w-[95vw] xl:max-w-7xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-7xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pr-6">
                     <div>
                         <DialogTitle className="text-xl font-bold flex items-center gap-2">

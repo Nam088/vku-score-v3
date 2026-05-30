@@ -18,4 +18,4 @@
 | Task 14 | Keep semesters grouping when searching scores | [x] Completed |
 | Task 15 | Fix CustomSelect overflow cutoff using Base UI Popover Portal | [x] Completed |
 | Task 16 | Prevent RecommendDialog layout flashing by updating in the background | [x] Completed |
-
+| Task 17 | Optimize TutorialDialog and RecommendDialog widths for desktop and responsiveness | [x] Completed |

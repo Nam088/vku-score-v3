@@ -22,7 +22,7 @@ const TutorialDialog: React.FC = () => {
 
     return (
         <Dialog open={dialogs.tutorial} onOpenChange={handleClose}>
-            <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-6">
+            <DialogContent className="w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl max-h-[85vh] flex flex-col p-6">
                 <DialogHeader className="pr-6">
                     <DialogTitle className="text-xl font-bold flex items-center gap-2">
                         <HelpCircle className="h-5 w-5 text-amber-500" />
