@@ -66,7 +66,7 @@ const RecommendDialog: React.FC = () => {
         if (scores.length === 0) return;
         setLoading(true);
         try {
-            const res = await fetch('/api/recommend', {
+            const res = await fetch('/vku-score-v3/api/recommend', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
