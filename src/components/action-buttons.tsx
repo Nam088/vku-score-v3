@@ -40,7 +40,7 @@ const ActionButtons: React.FC = () => {
                 <div className="fixed bottom-6 right-6 z-40">
                     <Button
                         onClick={handleOpenRecommend}
-                        className="h-12 px-6 rounded-full shadow-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-semibold flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 group"
+                        className="h-12 px-6 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 group"
                     >
                         <Sparkles className="h-5 w-5 animate-pulse group-hover:rotate-12 transition-transform duration-200" />
                         Gợi ý cải thiện học phần
