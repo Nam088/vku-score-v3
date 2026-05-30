@@ -18,20 +18,20 @@ const ActionButtons: React.FC = () => {
                 <Button
                     onClick={handleOpenAdd}
                     size="icon"
-                    className="h-12 w-12 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 text-white hover:scale-110 active:scale-95 transition-all duration-200"
+                    className="h-12 w-12 rounded-full shadow-lg ring-2 ring-blue-600/20 bg-blue-600 hover:bg-blue-700 text-white hover:scale-110 hover:ring-4 active:scale-95 transition-all duration-200"
                     title="Thêm học phần"
                 >
-                    <Plus className="h-6 w-6" />
+                    <Plus className="h-5 w-5" />
                 </Button>
-                
+
                 <Button
                     onClick={handleOpenTutorial}
                     size="icon"
                     variant="outline"
-                    className="h-12 w-12 rounded-full shadow-lg bg-background hover:bg-muted text-muted-foreground hover:scale-110 active:scale-95 transition-all duration-200"
+                    className="h-12 w-12 rounded-full shadow-md bg-background hover:bg-muted text-muted-foreground hover:text-foreground hover:scale-110 active:scale-95 transition-all duration-200"
                     title="Xem hướng dẫn"
                 >
-                    <HelpCircle className="h-6 w-6" />
+                    <HelpCircle className="h-5 w-5" />
                 </Button>
             </div>
 
@@ -40,10 +40,10 @@ const ActionButtons: React.FC = () => {
                 <div className="fixed bottom-6 right-6 z-40">
                     <Button
                         onClick={handleOpenRecommend}
-                        className="h-12 px-6 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 group"
+                        className="h-12 px-5 rounded-full shadow-lg ring-2 ring-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
                     >
-                        <Sparkles className="h-5 w-5 animate-pulse group-hover:rotate-12 transition-transform duration-200" />
-                        Gợi ý cải thiện học phần
+                        <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
+                        Gợi ý cải thiện
                     </Button>
                 </div>
             )}

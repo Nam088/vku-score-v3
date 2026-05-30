@@ -23,6 +23,7 @@ export function calculateGPA(scores: IScore[]): { gpa: number, gpaNew: number, d
     let totalGPANew = 0;
     let totalCreditsNew = 0;
     let totalGPA10 = 0;
+    let totalCreditsT10 = 0;
     let allTinChi = 0;
 
     for (const score of scores) {
@@ -42,6 +43,7 @@ export function calculateGPA(scores: IScore[]): { gpa: number, gpaNew: number, d
 
         if (score.scoreT10 !== null && score.scoreT10 !== undefined) {
             totalGPA10 += score.scoreT10 * credits;
+            totalCreditsT10 += credits;
         }
     }
 
@@ -49,7 +51,8 @@ export function calculateGPA(scores: IScore[]): { gpa: number, gpaNew: number, d
     const gpaNew = totalCreditsNew === 0 ? 0.0 : totalGPANew / totalCreditsNew;
     const difference = gpaNew - gpa;
 
-    const gpa10 = allTinChi === 0 ? 0.0 : totalGPA10 / allTinChi;
+    // Fix: dùng totalCreditsT10 thay vì allTinChi để chỉ chia cho môn đã có điểm T10
+    const gpa10 = totalCreditsT10 === 0 ? 0.0 : totalGPA10 / totalCreditsT10;
 
     return { gpa, gpaNew, difference, allTinChi, gpa10 };
 }

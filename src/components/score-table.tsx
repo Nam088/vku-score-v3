@@ -254,9 +254,9 @@ const ScoreTable: React.FC = () => {
 
     const getRowBgColor = (row: IScore) => {
         if ((row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) || row.scoreT10Original !== undefined) {
-            return 'border-l-4 border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10 hover:bg-emerald-500/15';
+            return 'border-l-4 border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/8 hover:bg-emerald-500/10';
         }
-        return 'border-l-4 border-l-transparent hover:bg-muted/50';
+        return 'border-l-4 border-l-transparent hover:bg-muted/40';
     };
 
     return (
