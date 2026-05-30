@@ -1,0 +1,274 @@
+'use client';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { useScoreStore } from '@/store/useScoreStore';
+import { IScore, ScoreCh } from '@/common/interfaces/score';
+import { Sparkles, Loader2, Search, RotateCcw } from 'lucide-react';
+import DebouncedInput from './debounced-input';
+
+interface IScoreWithAction extends IScore {
+    difference: number;
+    scorePredict: number;
+}
+
+const getBadgeColorClass = (scoreCh: ScoreCh | null | undefined) => {
+    if (!scoreCh) return 'bg-slate-100 text-slate-800 dark:bg-zinc-800 dark:text-zinc-300';
+    switch (scoreCh) {
+        case 'A':
+            return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+        case 'B':
+            return 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300';
+        case 'C':
+            return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+        case 'D':
+            return 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300';
+        case 'F':
+            return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300';
+        default:
+            return 'bg-slate-100 text-slate-800';
+    }
+};
+
+const scoreOptionsMap: { [key in Exclude<ScoreCh, null>]: ScoreCh[] } = {
+    'F': ['A', 'B', 'C', 'D', 'F'],
+    'D': ['A', 'B', 'C', 'D'],
+    'C': ['A', 'B', 'C'],
+    'B': ['A', 'B'],
+    'A': ['A'],
+};
+
+const RecommendDialog: React.FC = () => {
+    const { dialogs, toggleDialog, scores, changeScoreCh } = useScoreStore();
+    const [loading, setLoading] = useState(false);
+    const [recommendations, setRecommendations] = useState<IScoreWithAction[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isShowExtraColumn, setIsShowExtraColumn] = useState(false);
+
+    // Lấy đề xuất từ API
+    const fetchRecommendations = async () => {
+        if (scores.length === 0) return;
+        setLoading(true);
+        try {
+            const res = await fetch('/api/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ scores }),
+            });
+            const data = await res.json();
+            if (data.recommendations) {
+                setRecommendations(data.recommendations);
+            }
+        } catch (error) {
+            console.error('Failed to load recommendations:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Gọi API mỗi khi mở dialog hoặc thay đổi scores
+    useEffect(() => {
+        if (dialogs.recommend) {
+            fetchRecommendations();
+        }
+    }, [dialogs.recommend, scores]);
+
+    const handleClose = () => {
+        toggleDialog('recommend');
+    };
+
+    const handleScoreChange = useCallback((row: IScore, newValue: ScoreCh) => {
+        changeScoreCh(row, newValue);
+    }, [changeScoreCh]);
+
+    const filteredScores = useMemo(() => {
+        if (!searchQuery) return recommendations;
+        const query = searchQuery.toLowerCase();
+        return recommendations.filter((score) =>
+            score.name.toLowerCase().includes(query) ||
+            score.scoreCh?.toLowerCase().includes(query)
+        );
+    }, [recommendations, searchQuery]);
+
+    const getRowBgColor = (row: IScore) => {
+        if (row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) {
+            return 'bg-emerald-500/10 dark:bg-emerald-500/5 hover:bg-emerald-500/20';
+        }
+        return 'hover:bg-muted/50';
+    };
+
+    return (
+        <Dialog open={dialogs.recommend} onOpenChange={handleClose}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pr-6">
+                    <div>
+                        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-indigo-500 animate-pulse" />
+                            Gợi ý cải thiện học phần
+                        </DialogTitle>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Các môn học có tiềm năng tăng điểm GPA của bạn cao nhất khi học cải thiện.
+                        </p>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm">
+                        <Checkbox
+                            id="toggle-extra-rec"
+                            checked={isShowExtraColumn}
+                            onCheckedChange={(checked) => setIsShowExtraColumn(!!checked)}
+                        />
+                        <Label htmlFor="toggle-extra-rec" className="cursor-pointer select-none">
+                            Cột bổ sung
+                        </Label>
+                    </div>
+                </DialogHeader>
+
+                <div className="space-y-4 py-2">
+                    <div className="flex items-center justify-end w-full max-w-xs ml-auto border rounded-lg px-2 bg-background focus-within:ring-1 focus-within:ring-ring">
+                        <Search className="h-4 w-4 text-muted-foreground mr-2" />
+                        <DebouncedInput
+                            value={searchQuery}
+                            onChange={(value) => setSearchQuery(value as string)}
+                            placeholder="Tìm môn đề xuất..."
+                            className="border-none focus-visible:ring-0 focus-visible:ring-offset-0 h-9 px-1 text-sm bg-transparent w-full"
+                        />
+                    </div>
+
+                    <div className="rounded-xl border bg-background/50 overflow-hidden">
+                        {loading ? (
+                            <div className="h-40 flex flex-col items-center justify-center gap-2">
+                                <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+                                <span className="text-sm text-muted-foreground">Đang tính toán đề xuất điểm...</span>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="text-center font-bold">ID</TableHead>
+                                        <TableHead className="text-left font-bold">Tên học phần</TableHead>
+                                        <TableHead className="text-center font-bold">Số tín chỉ</TableHead>
+                                        {isShowExtraColumn && (
+                                            <>
+                                                <TableHead className="text-center font-bold">Lần học</TableHead>
+                                                <TableHead className="text-center font-bold">Chuyên cần</TableHead>
+                                                <TableHead className="text-center font-bold">Bài tập</TableHead>
+                                                <TableHead className="text-center font-bold">Giữa kỳ</TableHead>
+                                                <TableHead className="text-center font-bold">Cuối kỳ</TableHead>
+                                            </>
+                                        )}
+                                        <TableHead className="text-center font-bold">Điểm hệ 10</TableHead>
+                                        <TableHead className="text-center font-bold">Điểm chữ</TableHead>
+                                        <TableHead className="text-center font-bold">Thay đổi</TableHead>
+                                        <TableHead className="text-center font-bold">Dự đoán mới</TableHead>
+                                        <TableHead className="text-center font-bold">Hành động</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredScores.length > 0 ? (
+                                        filteredScores.map((row) => {
+                                            const originalScoreCh = row.scoreCh || 'F';
+                                            const currentValue = row.scoreChChange || originalScoreCh;
+                                            const options = scoreOptionsMap[originalScoreCh] || ['A', 'B', 'C', 'D', 'F'];
+
+                                            return (
+                                                <TableRow key={row.id} className={`text-center ${getRowBgColor(row)}`}>
+                                                    <TableCell className="p-2 border-r last:border-0 align-middle font-semibold">
+                                                        {row.id}
+                                                    </TableCell>
+                                                    <TableCell className="p-2 border-r last:border-0 align-middle text-left font-medium max-w-xs truncate">
+                                                        {row.name}
+                                                    </TableCell>
+                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                        {row.countTC}
+                                                    </TableCell>
+                                                    {isShowExtraColumn && (
+                                                        <>
+                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.countLH}</TableCell>
+                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.scoreCC}</TableCell>
+                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.scoreBT}</TableCell>
+                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.scoreGK}</TableCell>
+                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.scoreCK}</TableCell>
+                                                        </>
+                                                    )}
+                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                        {row.scoreT10}
+                                                    </TableCell>
+                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-bold ring-1 ring-inset ${getBadgeColorClass(row.scoreCh)}`}>
+                                                            {row.scoreCh || ''}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                        <select
+                                                            disabled={originalScoreCh === 'A'}
+                                                            value={currentValue}
+                                                            onChange={(e) => handleScoreChange(row, e.target.value as ScoreCh)}
+                                                            className="h-8 w-20 border rounded px-1 text-xs bg-background focus:ring-1 focus:ring-ring"
+                                                        >
+                                                            {options.map((opt) => (
+                                                                <option key={opt} value={opt}>
+                                                                    {opt}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </TableCell>
+                                                    <TableCell className="p-2 border-r last:border-0 align-middle font-bold text-indigo-600 dark:text-indigo-400">
+                                                        {row.scorePredict.toFixed(2)}
+                                                    </TableCell>
+                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                        {row.scoreChChange && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => changeScoreCh(row, null)}
+                                                                className="h-8 w-8 text-blue-500 hover:bg-blue-500/10"
+                                                                title="Hủy thay đổi"
+                                                            >
+                                                                <RotateCcw className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={isShowExtraColumn ? 13 : 8} className="h-24 text-center text-muted-foreground">
+                                                {scores.length === 0 ? 'Hãy tải tệp điểm lên trước.' : 'Không có gợi ý cải thiện (tất cả môn học đã tối ưu).'}
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                </div>
+
+                <DialogFooter className="pt-4 flex justify-end">
+                    <Button onClick={handleClose} className="bg-blue-600 hover:bg-blue-700 text-white">
+                        Đóng
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+export default RecommendDialog;
