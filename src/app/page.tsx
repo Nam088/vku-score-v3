@@ -1,12 +1,8 @@
-import ScoreView from '@/view/score/ScoreView';
+import MainView from '@/components/main-view';
+import React from 'react';
 
 export default function Home() {
-
     return (
-        <>
-
-            <ScoreView/>
-        </>
-
+        <MainView />
     );
 }

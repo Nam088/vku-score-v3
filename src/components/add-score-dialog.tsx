@@ -19,14 +19,14 @@ import { IScore } from '@/common/interfaces/score';
 
 const schema = z.object({
     name: z.string().min(3, 'Tên học phần phải có ít nhất 3 ký tự'),
-    countTC: z.number({ invalid_type_error: 'Số tín chỉ phải là số' }).min(1, 'Số tín chỉ phải lớn hơn 0'),
+    countTC: z.number({ message: 'Số tín chỉ phải là số' }).min(1, 'Số tín chỉ phải lớn hơn 0'),
     countLH: z.number().nullable().optional(),
     scoreCC: z.number().nullable().optional(),
     scoreBT: z.number().nullable().optional(),
     scoreGK: z.number().nullable().optional(),
     scoreCK: z.number().nullable().optional(),
-    scoreT10: z.number({ invalid_type_error: 'Điểm hệ 10 phải là số' }).min(0, 'Điểm hệ 10 phải từ 0 đến 10').max(10, 'Điểm hệ 10 phải từ 0 đến 10'),
-    scoreCh: z.enum(['A', 'B', 'C', 'D', 'F'], { errorMap: () => ({ message: 'Điểm chữ không hợp lệ' }) }).nullable(),
+    scoreT10: z.number({ message: 'Điểm hệ 10 phải là số' }).min(0, 'Điểm hệ 10 phải từ 0 đến 10').max(10, 'Điểm hệ 10 phải từ 0 đến 10'),
+    scoreCh: z.enum(['A', 'B', 'C', 'D', 'F'], { message: 'Điểm chữ không hợp lệ' }).nullable(),
     scoreChChange: z.string().nullable().optional(),
     semester: z.string().nullable().optional(),
 });
