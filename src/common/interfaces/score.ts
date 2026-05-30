@@ -13,5 +13,7 @@ export interface IScore {
     scoreT10?: number | null;
     scoreCh?: ScoreCh | null ;
     scoreChChange?: ScoreCh | null;
+    scoreT10Original?: number | null;
+    scoreChOriginal?: ScoreCh | null;
     semester?: string | null;
 }

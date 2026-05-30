@@ -113,7 +113,7 @@ const RecommendDialog: React.FC = () => {
     }, [recommendations, searchQuery]);
 
     const getRowBgColor = (row: IScore) => {
-        if (row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) {
+        if ((row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) || row.scoreT10Original !== undefined) {
             return 'bg-emerald-500/10 dark:bg-emerald-500/5 hover:bg-emerald-500/20';
         }
         return 'hover:bg-muted/50';
@@ -239,7 +239,7 @@ const RecommendDialog: React.FC = () => {
                                                         {row.scorePredict.toFixed(2)}
                                                     </TableCell>
                                                     <TableCell className="w-[90px] min-w-[90px] text-center p-2 border-r last:border-0 align-middle">
-                                                        {row.scoreChChange && (
+                                                        {(row.scoreChChange || row.scoreT10Original !== undefined) && (
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"

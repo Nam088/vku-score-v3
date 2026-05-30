@@ -208,7 +208,7 @@ const ScoreTable: React.FC = () => {
                         >
                             <Trash className="h-4 w-4" />
                         </Button>
-                        {info.row.original.scoreChChange && (
+                        {(info.row.original.scoreChChange || info.row.original.scoreT10Original !== undefined) && (
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -253,7 +253,7 @@ const ScoreTable: React.FC = () => {
     }, [table.getRowModel().rows]);
 
     const getRowBgColor = (row: IScore) => {
-        if (row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) {
+        if ((row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) || row.scoreT10Original !== undefined) {
             return 'bg-emerald-500/10 dark:bg-emerald-500/5 hover:bg-emerald-500/20';
         }
         return 'hover:bg-muted/50';

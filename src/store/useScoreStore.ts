@@ -45,17 +45,62 @@ export const useScoreStore = create<ScoreState>()(
                 scores: state.scores.filter((s) => s.id !== id),
             })),
             changeScoreCh: (row, newValue) => set((state) => ({
-                scores: state.scores.map((s) =>
-                    s.id === row.id
-                        ? { ...s, scoreChChange: newValue === s.scoreCh ? null : newValue }
-                        : s
-                ),
+                scores: state.scores.map((s) => {
+                    if (s.id === row.id) {
+                        if (newValue === null) {
+                            const restoredT10 = s.scoreT10Original !== undefined ? s.scoreT10Original : s.scoreT10;
+                            const restoredCh = s.scoreChOriginal !== undefined ? s.scoreChOriginal : s.scoreCh;
+                            
+                            const updated = {
+                                ...s,
+                                scoreT10: restoredT10,
+                                scoreCh: restoredCh,
+                                scoreChChange: null,
+                            };
+                            delete updated.scoreT10Original;
+                            delete updated.scoreChOriginal;
+                            return updated;
+                        } else {
+                            return {
+                                ...s,
+                                scoreChChange: newValue === s.scoreCh ? null : newValue,
+                            };
+                        }
+                    }
+                    return s;
+                }),
             })),
-            changeScoreT10: (row, newValue) => set((state) => ({
-                scores: state.scores.map((s) =>
-                    s.id === row.id ? { ...s, scoreT10: newValue } : s
-                ),
-            })),
+            changeScoreT10: (row, newValue) => set((state) => {
+                if (isNaN(newValue)) return {};
+                
+                const convertT10ToCh = (t10: number): ScoreCh => {
+                    if (t10 >= 8.5) return 'A';
+                    if (t10 >= 7.0) return 'B';
+                    if (t10 >= 5.5) return 'C';
+                    if (t10 >= 4.0) return 'D';
+                    return 'F';
+                };
+                const newScoreCh = convertT10ToCh(newValue);
+
+                return {
+                    scores: state.scores.map((s) => {
+                        if (s.id === row.id) {
+                            const backupT10 = s.scoreT10Original !== undefined ? s.scoreT10Original : s.scoreT10;
+                            const backupCh = s.scoreChOriginal !== undefined ? s.scoreChOriginal : s.scoreCh;
+                            
+                            return {
+                                ...s,
+                                scoreT10Original: backupT10,
+                                scoreChOriginal: backupCh,
+                                scoreT10: newValue,
+                                scoreCh: newScoreCh,
+                                scoreChChange: null,
+                            };
+                        }
+                        return s;
+                    }),
+                };
+            }),
             setScores: (scores) => set(() => ({
                 scores,
                 toggleUploadFile: scores.length === 0,

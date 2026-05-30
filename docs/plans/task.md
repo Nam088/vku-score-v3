@@ -12,3 +12,4 @@
 | Task 8 | Expand Layout Max Width | [x] Completed |
 | Task 9 | Optimize ScoreTable Columns Sizing and Wrapping | [x] Completed |
 | Task 10 | Optimize RecommendDialog Columns Sizing and Wrapping | [x] Completed |
+| Task 11 | Fix Score Editing Recalculation & Reset | [x] Completed |
