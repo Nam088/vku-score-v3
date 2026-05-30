@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useScoreStore } from '@/store/useScoreStore';
-import { Trash2, RotateCcw, Search, Trash } from 'lucide-react';
+import { RotateCcw, Search, Trash, ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react';
 import { IScore, ScoreCh } from '@/common/interfaces/score';
 import DebouncedInput from './debounced-input';
 import { cn } from '@/lib/utils';
@@ -87,6 +87,25 @@ const ScoreTable: React.FC = () => {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [isShowExtraColumn, setIsShowExtraColumn] = useState(true);
+    const [collapsedSemesters, setCollapsedSemesters] = useState<Set<string>>(new Set());
+
+    const toggleSemester = useCallback((semester: string) => {
+        setCollapsedSemesters(prev => {
+            const next = new Set(prev);
+            if (next.has(semester)) next.delete(semester);
+            else next.add(semester);
+            return next;
+        });
+    }, []);
+
+    const collapseAll = useCallback(() => {
+        setCollapsedSemesters(new Set(Object.keys(groupedRowModel)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const expandAll = useCallback(() => {
+        setCollapsedSemesters(new Set());
+    }, []);
 
     const handleScoreChange = useCallback((row: IScore, newValue: ScoreCh | null) => {
         changeScoreCh(row, newValue);
@@ -263,7 +282,32 @@ const ScoreTable: React.FC = () => {
         <Card className="w-full shadow-md bg-card/60 backdrop-blur-sm border">
             <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <CardTitle className="text-xl font-bold">Bảng Điểm Học Tập</CardTitle>
-                <div className="flex flex-wrap items-center gap-4 text-sm">
+                <div className="flex flex-wrap items-center gap-3 text-sm">
+                    {/* Collapse / Expand all — chỉ hiện khi không search */}
+                    {!searchQuery && Object.keys(groupedRowModel).length > 0 && (
+                        <div className="flex items-center gap-1 border-r pr-3">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={expandAll}
+                                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+                                title="Mở rộng tất cả học kỳ"
+                            >
+                                <ChevronsUpDown className="h-3.5 w-3.5" />
+                                Mở tất cả
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={collapseAll}
+                                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+                                title="Thu gọn tất cả học kỳ"
+                            >
+                                <ChevronsDownUp className="h-3.5 w-3.5" />
+                                Thu tất cả
+                            </Button>
+                        </div>
+                    )}
                     <div className="flex items-center space-x-2">
                         <Checkbox
                             id="toggle-upload"
@@ -346,48 +390,82 @@ const ScoreTable: React.FC = () => {
                         </Table>
                     ) : (
                         // Hiển thị các bảng gom nhóm theo học kỳ (Đã tối ưu O(N) hoàn toàn)
-                        Object.keys(groupedRowModel).map((semester) => (
-                            <div key={semester} className="mb-6 last:mb-0">
-                                <div className="bg-muted/50 px-4 py-2 border-b font-bold text-sm tracking-wider text-muted-foreground flex justify-between items-center">
-                                    <span>{semester}</span>
-                                    <span className="text-xs bg-foreground/10 px-2 py-0.5 rounded-full font-semibold text-foreground/75">
-                                        {groupedRowModel[semester].length} môn
-                                    </span>
+                        Object.keys(groupedRowModel).map((semester) => {
+                            const isCollapsed = collapsedSemesters.has(semester);
+                            const rows = groupedRowModel[semester];
+                            const changedCount = rows.filter(r =>
+                                (r.original.scoreCh !== r.original.scoreChChange && r.original.scoreChChange !== null)
+                                || r.original.scoreT10Original !== undefined
+                            ).length;
+
+                            return (
+                                <div key={semester} className="last:mb-0">
+                                    {/* Semester header — clickable */}
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleSemester(semester)}
+                                        className="w-full bg-muted/40 hover:bg-muted/70 transition-colors px-4 py-2.5 border-b font-semibold text-sm tracking-wide text-muted-foreground flex justify-between items-center group cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <ChevronDown
+                                                className={cn(
+                                                    'h-4 w-4 text-muted-foreground transition-transform duration-200',
+                                                    isCollapsed ? '-rotate-90' : 'rotate-0'
+                                                )}
+                                            />
+                                            <span>{semester}</span>
+                                            {changedCount > 0 && (
+                                                <span className="inline-flex items-center rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                                                    {changedCount} đã sửa
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span className="text-xs bg-foreground/10 px-2 py-0.5 rounded-full font-semibold text-foreground/70">
+                                            {rows.length} môn
+                                        </span>
+                                    </button>
+
+                                    {/* Collapsible content */}
+                                    <div className={cn(
+                                        'overflow-hidden transition-all duration-300 ease-in-out',
+                                        isCollapsed ? 'max-h-0' : 'max-h-[9999px]'
+                                    )}>
+                                        <Table>
+                                            <TableHeader>
+                                                {table.getHeaderGroups().map((headerGroup) => (
+                                                    <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                                                        {headerGroup.headers.map((header) => {
+                                                            const styleClass = columnStyleMap[header.column.id] || '';
+                                                            return (
+                                                                <TableHead key={header.id} className={cn('font-bold h-9', styleClass)}>
+                                                                    {header.isPlaceholder
+                                                                        ? null
+                                                                        : flexRender(header.column.columnDef.header, header.getContext())}
+                                                                </TableHead>
+                                                            );
+                                                        })}
+                                                    </TableRow>
+                                                ))}
+                                            </TableHeader>
+                                            <TableBody>
+                                                {rows.map((row) => (
+                                                    <TableRow key={row.id} className={`text-center ${getRowBgColor(row.original)}`}>
+                                                        {row.getVisibleCells().map((cell) => {
+                                                            const styleClass = columnStyleMap[cell.column.id] || '';
+                                                            return (
+                                                                <TableCell key={cell.id} className={cn('p-2 align-middle', styleClass)}>
+                                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                                </TableCell>
+                                                            );
+                                                        })}
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
                                 </div>
-                                <Table>
-                                    <TableHeader>
-                                        {table.getHeaderGroups().map((headerGroup) => (
-                                            <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                                                {headerGroup.headers.map((header) => {
-                                                    const styleClass = columnStyleMap[header.column.id] || '';
-                                                    return (
-                                                        <TableHead key={header.id} className={cn("font-bold h-9", styleClass)}>
-                                                            {header.isPlaceholder
-                                                                ? null
-                                                                : flexRender(header.column.columnDef.header, header.getContext())}
-                                                        </TableHead>
-                                                    );
-                                                })}
-                                            </TableRow>
-                                        ))}
-                                    </TableHeader>
-                                    <TableBody>
-                                        {groupedRowModel[semester].map((row) => (
-                                            <TableRow key={row.id} className={`text-center ${getRowBgColor(row.original)}`}>
-                                                {row.getVisibleCells().map((cell) => {
-                                                    const styleClass = columnStyleMap[cell.column.id] || '';
-                                                    return (
-                                                        <TableCell key={cell.id} className={cn("p-2 align-middle", styleClass)}>
-                                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                        </TableCell>
-                                                    );
-                                                })}
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
             </CardContent>

@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { IScore, ScoreCh } from '@/common/interfaces/score';
 
+/** Strip internal change-tracking fields that should never be persisted */
+const sanitizeScore = ({ scoreT10Original, scoreChOriginal, ...s }: IScore): IScore => s;
+
 interface ScoreState {
     scores: IScore[];
     dialogs: {
@@ -50,7 +53,6 @@ export const useScoreStore = create<ScoreState>()(
                         if (newValue === null) {
                             const restoredT10 = s.scoreT10Original !== undefined ? s.scoreT10Original : s.scoreT10;
                             const restoredCh = s.scoreChOriginal !== undefined ? s.scoreChOriginal : s.scoreCh;
-                            
                             const updated = {
                                 ...s,
                                 scoreT10: restoredT10,
@@ -72,7 +74,7 @@ export const useScoreStore = create<ScoreState>()(
             })),
             changeScoreT10: (row, newValue) => set((state) => {
                 if (isNaN(newValue)) return {};
-                
+
                 const convertT10ToCh = (t10: number): ScoreCh => {
                     if (t10 >= 8.5) return 'A';
                     if (t10 >= 7.0) return 'B';
@@ -87,7 +89,6 @@ export const useScoreStore = create<ScoreState>()(
                         if (s.id === row.id) {
                             const backupT10 = s.scoreT10Original !== undefined ? s.scoreT10Original : s.scoreT10;
                             const backupCh = s.scoreChOriginal !== undefined ? s.scoreChOriginal : s.scoreCh;
-                            
                             return {
                                 ...s,
                                 scoreT10Original: backupT10,
@@ -118,8 +119,18 @@ export const useScoreStore = create<ScoreState>()(
         }),
         {
             name: 'scoreState-zustand',
+            // Bump version to trigger migration → cleans stale scoreT10Original/scoreChOriginal from existing localStorage
+            version: 2,
+            migrate: (persisted: any, version) => {
+                // Migrate from any old version: strip ephemeral fields from all saved scores
+                if (persisted && Array.isArray(persisted.scores)) {
+                    persisted.scores = persisted.scores.map(sanitizeScore);
+                }
+                return persisted as ScoreState;
+            },
             partialize: (state) => ({
-                scores: state.scores,
+                // Always strip ephemeral change-tracking fields before saving
+                scores: state.scores.map(sanitizeScore),
                 toggleUploadFile: state.toggleUploadFile,
             }),
         }
