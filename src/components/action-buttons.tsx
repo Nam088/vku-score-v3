@@ -44,38 +44,41 @@ const ActionButtons: React.FC = () => {
 
             {/* Cụm nút gợi ý bên phải */}
             {scores.length > 0 && (
-                <div className="fixed bottom-6 right-6 flex flex-wrap items-center justify-end gap-2 md:gap-3 z-40 max-w-[calc(100vw-3rem)] md:max-w-none">
+                <div className="fixed bottom-6 right-6 flex items-center justify-end gap-2 md:gap-3 z-40">
                     <Button
                         onClick={handleExportReport}
-                        className="h-12 px-4 rounded-full shadow-lg ring-2 ring-slate-500/20 bg-slate-700 hover:bg-slate-800 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
-                        title="Xuất ảnh thẻ báo cáo"
+                        className="size-10 md:size-auto md:h-11 md:px-4 rounded-full shadow-lg ring-2 ring-slate-500/20 bg-slate-700 hover:bg-slate-800 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
+                        title="Xuất báo cáo"
                     >
                         <Download className="h-4 w-4 group-hover:translate-y-0.5 transition-transform duration-200" />
-                        <span className="hidden sm:inline">Xuất báo cáo</span>
+                        <span className="hidden md:inline">Xuất báo cáo</span>
                     </Button>
 
                     <Button
                         onClick={handleOpenSemester}
-                        className="h-12 px-4 rounded-full shadow-lg ring-2 ring-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
+                        className="size-10 md:size-auto md:h-11 md:px-4 rounded-full shadow-lg ring-2 ring-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
+                        title="Giả lập học kỳ"
                     >
                         <CalendarPlus className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
-                        Giả lập học kỳ
+                        <span className="hidden md:inline">Giả lập học kỳ</span>
                     </Button>
 
                     <Button
                         onClick={handleOpenTarget}
-                        className="h-12 px-4 rounded-full shadow-lg ring-2 ring-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
+                        className="size-10 md:size-auto md:h-11 md:px-4 rounded-full shadow-lg ring-2 ring-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
+                        title="Mục tiêu GPA"
                     >
                         <Target className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
-                        Mục tiêu GPA
+                        <span className="hidden md:inline">Mục tiêu GPA</span>
                     </Button>
 
                     <Button
                         onClick={handleOpenRecommend}
-                        className="h-12 px-4 rounded-full shadow-lg ring-2 ring-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
+                        className="size-10 md:size-auto md:h-11 md:px-4 rounded-full shadow-lg ring-2 ring-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-2 hover:scale-105 hover:ring-4 active:scale-95 transition-all duration-200 group"
+                        title="Gợi ý cải thiện"
                     >
                         <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
-                        Gợi ý cải thiện
+                        <span className="hidden md:inline">Gợi ý cải thiện</span>
                     </Button>
                 </div>
             )}
