@@ -113,7 +113,9 @@ const RecommendDialog: React.FC = () => {
     }, [recommendations, searchQuery]);
 
     const getRowBgColor = (row: IScore) => {
-        if ((row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) || row.scoreT10Original !== undefined) {
+        const isT10Edited = row.scoreT10Original != null;
+        const isChEdited = row.scoreChChange != null && row.scoreCh !== row.scoreChChange;
+        if (isT10Edited || isChEdited) {
             return 'border-l-4 border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/8 hover:bg-emerald-500/10';
         }
         return 'border-l-4 border-l-transparent hover:bg-muted/40';

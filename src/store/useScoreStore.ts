@@ -103,7 +103,8 @@ export const useScoreStore = create<ScoreState>()(
                 };
             }),
             setScores: (scores) => set(() => ({
-                scores,
+                // sanitize khi load file JSON — đảm bảo không có field thừa từ export cũ
+                scores: scores.map(sanitizeScore),
                 toggleUploadFile: scores.length === 0,
             })),
             resetScores: () => set(() => ({
@@ -119,17 +120,29 @@ export const useScoreStore = create<ScoreState>()(
         }),
         {
             name: 'scoreState-zustand',
-            // Bump version to trigger migration → cleans stale scoreT10Original/scoreChOriginal from existing localStorage
             version: 2,
-            migrate: (persisted: any, version) => {
-                // Migrate from any old version: strip ephemeral fields from all saved scores
+            migrate: (persisted: any) => {
+                // migrate() as fallback for older stored versions
                 if (persisted && Array.isArray(persisted.scores)) {
                     persisted.scores = persisted.scores.map(sanitizeScore);
                 }
                 return persisted as ScoreState;
             },
+            // onRehydrateStorage runs AFTER hydration — most reliable cleanup hook
+            onRehydrateStorage: () => (state) => {
+                if (state?.scores) {
+                    const cleaned = state.scores.map(sanitizeScore);
+                    // only update if something actually changed
+                    const needsClean = state.scores.some(
+                        (s: any) => s.scoreT10Original !== undefined || s.scoreChOriginal !== undefined
+                    );
+                    if (needsClean) {
+                        useScoreStore.setState({ scores: cleaned });
+                    }
+                }
+            },
             partialize: (state) => ({
-                // Always strip ephemeral change-tracking fields before saving
+                // strip ephemeral change-tracking fields before saving
                 scores: state.scores.map(sanitizeScore),
                 toggleUploadFile: state.toggleUploadFile,
             }),
