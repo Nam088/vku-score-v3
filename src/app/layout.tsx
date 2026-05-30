@@ -20,7 +20,7 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <body className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300`}>
                 <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
                     <Header />
-                    <main className='flex-grow container mx-auto p-4 md:p-6 max-w-7xl space-y-6'>
+                    <main className='flex-grow container mx-auto p-4 md:p-6 max-w-[1440px] space-y-6'>
                         {children}
                     </main>
                     <Footer />
