@@ -7,6 +7,7 @@ import {
     getCoreRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    Row,
     useReactTable,
 } from '@tanstack/react-table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -268,6 +269,123 @@ const ScoreTable: React.FC = () => {
         }
         return 'border-l-4 border-l-transparent hover:bg-muted/40';
     };
+    const renderMobileCard = (row: Row<IScore>) => {
+        const item = row.original;
+        const originalScoreCh = item.scoreCh || 'F';
+        const currentValue = item.scoreChChange || originalScoreCh;
+        const options = scoreOptionsMap[originalScoreCh] || ['A', 'B', 'C', 'D', 'F'];
+
+        return (
+            <div 
+                key={item.id} 
+                className={cn(
+                    "p-4 rounded-xl border flex flex-col gap-3 transition-all duration-200 text-left bg-card/40", 
+                    getRowBgColor(item)
+                )}
+            >
+                {/* Header: ID & Credits */}
+                <div className="flex justify-between items-center gap-2">
+                    <span className="text-[10px] font-mono text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded font-bold">
+                        ID: {item.id}
+                    </span>
+                    <span className="text-xs font-bold text-muted-foreground">
+                        {item.countTC} tín chỉ
+                    </span>
+                </div>
+                
+                {/* Course Name */}
+                <h4 className="text-sm font-bold text-foreground leading-snug">
+                    {item.name}
+                </h4>
+
+                {/* Extra columns (CC, BT, GK, CK) if enabled */}
+                {isShowExtraColumn && (
+                    <div className="grid grid-cols-5 gap-1 text-center bg-muted/30 p-2 rounded-lg text-xs mt-0.5">
+                        <div>
+                            <div className="text-[9px] text-muted-foreground font-bold">Lần học</div>
+                            <div className="font-bold mt-0.5 text-foreground/80">{item.countLH ?? '-'}</div>
+                        </div>
+                        <div>
+                            <div className="text-[9px] text-muted-foreground font-bold">C.Cần</div>
+                            <div className="font-bold mt-0.5 text-foreground/80">{item.scoreCC ?? '-'}</div>
+                        </div>
+                        <div>
+                            <div className="text-[9px] text-muted-foreground font-bold">Bài tập</div>
+                            <div className="font-bold mt-0.5 text-foreground/80">{item.scoreBT ?? '-'}</div>
+                        </div>
+                        <div>
+                            <div className="text-[9px] text-muted-foreground font-bold">Giữa kỳ</div>
+                            <div className="font-bold mt-0.5 text-foreground/80">{item.scoreGK ?? '-'}</div>
+                        </div>
+                        <div>
+                            <div className="text-[9px] text-muted-foreground font-bold">Cuối kỳ</div>
+                            <div className="font-bold mt-0.5 text-foreground/80">{item.scoreCK ?? '-'}</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Inputs and actions */}
+                <div className="flex flex-wrap items-center justify-between gap-3 mt-1 pt-3 border-t border-dashed border-border/80">
+                    <div className="flex items-center gap-3">
+                        {/* Điểm hệ 10 */}
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-wider">Hệ 10</span>
+                            <DebouncedInput
+                                value={item.scoreT10?.toString() || ''}
+                                onChange={(value) => handleDiem10Change(item, Number(value))}
+                                debounce={500}
+                                className="w-14 h-8 text-center p-1 text-xs border rounded bg-background font-semibold"
+                            />
+                        </div>
+
+                        {/* Điểm gốc */}
+                        <div className="flex flex-col items-center gap-1">
+                            <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-wider">Gốc</span>
+                            <span className={`inline-flex h-8 items-center justify-center rounded-md px-2 text-xs font-bold ring-1 ring-inset ${getBadgeColorClass(item.scoreCh)}`}>
+                                {item.scoreCh || ''}
+                            </span>
+                        </div>
+
+                        {/* Điểm chữ thay đổi */}
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[9px] text-muted-foreground font-extrabold uppercase tracking-wider">Thay đổi</span>
+                            <CustomSelect
+                                disabled={originalScoreCh === 'A'}
+                                value={currentValue}
+                                onChange={(val) => handleScoreChange(item, val)}
+                                options={options}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1 self-end">
+                        {(item.scoreChChange || item.scoreT10Original != null) && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleScoreChange(item, null)}
+                                className="h-8 px-2 text-xs text-blue-500 hover:text-blue-600 hover:bg-blue-500/10 border-blue-200 dark:border-blue-800 gap-1 font-bold"
+                                title="Hủy thay đổi"
+                            >
+                                <RotateCcw className="h-3.5 w-3.5" />
+                                Hủy
+                            </Button>
+                        )}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemove(item.id)}
+                            className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10"
+                            title="Xóa môn"
+                        >
+                            <Trash className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <Card className="w-full shadow-md bg-card/60 backdrop-blur-sm border">
@@ -378,38 +496,46 @@ const ScoreTable: React.FC = () => {
                                         'overflow-hidden transition-all duration-300 ease-in-out',
                                         isCollapsed ? 'max-h-0' : 'max-h-[9999px]'
                                     )}>
-                                        <Table>
-                                            <TableHeader>
-                                                {table.getHeaderGroups().map((headerGroup) => (
-                                                    <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                                                        {headerGroup.headers.map((header) => {
-                                                            const styleClass = columnStyleMap[header.column.id] || '';
-                                                            return (
-                                                                <TableHead key={header.id} className={cn('font-bold h-9', styleClass)}>
-                                                                    {header.isPlaceholder
-                                                                        ? null
-                                                                        : flexRender(header.column.columnDef.header, header.getContext())}
-                                                                </TableHead>
-                                                            );
-                                                        })}
-                                                    </TableRow>
-                                                ))}
-                                            </TableHeader>
-                                            <TableBody>
-                                                {rows.map((row) => (
-                                                    <TableRow key={row.id} className={`text-center ${getRowBgColor(row.original)}`}>
-                                                        {row.getVisibleCells().map((cell) => {
-                                                            const styleClass = columnStyleMap[cell.column.id] || '';
-                                                            return (
-                                                                <TableCell key={cell.id} className={cn('p-2 align-middle', styleClass)}>
-                                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                                </TableCell>
-                                                            );
-                                                        })}
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
+                                        {/* Desktop View */}
+                                        <div className="hidden md:block">
+                                            <Table>
+                                                <TableHeader>
+                                                    {table.getHeaderGroups().map((headerGroup) => (
+                                                        <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                                                            {headerGroup.headers.map((header) => {
+                                                                const styleClass = columnStyleMap[header.column.id] || '';
+                                                                return (
+                                                                    <TableHead key={header.id} className={cn('font-bold h-9', styleClass)}>
+                                                                        {header.isPlaceholder
+                                                                            ? null
+                                                                            : flexRender(header.column.columnDef.header, header.getContext())}
+                                                                    </TableHead>
+                                                                );
+                                                            })}
+                                                        </TableRow>
+                                                    ))}
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {rows.map((row) => (
+                                                        <TableRow key={row.id} className={`text-center ${getRowBgColor(row.original)}`}>
+                                                            {row.getVisibleCells().map((cell) => {
+                                                                const styleClass = columnStyleMap[cell.column.id] || '';
+                                                                return (
+                                                                    <TableCell key={cell.id} className={cn('p-2 align-middle', styleClass)}>
+                                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                                    </TableCell>
+                                                                );
+                                                            })}
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+
+                                        {/* Mobile View */}
+                                        <div className="block md:hidden space-y-3 p-3 bg-muted/10 rounded-b-lg border-t">
+                                            {rows.map((row) => renderMobileCard(row))}
+                                        </div>
                                     </div>
                                 </div>
                             );

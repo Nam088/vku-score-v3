@@ -19,3 +19,15 @@
 | Task 15 | Fix CustomSelect overflow cutoff using Base UI Popover Portal | [x] Completed |
 | Task 16 | Prevent RecommendDialog layout flashing by updating in the background | [x] Completed |
 | Task 17 | Optimize TutorialDialog and RecommendDialog widths for desktop and responsiveness | [x] Completed |
+| Task 18 | Implement card-based responsive layout for mobile viewports on ScoreTable and RecommendDialog | [x] Completed |
+| Task 19 | Optimize dark mode colors in globals.css (softer zinc/charcoal background, card styling, and popovers) | [x] Completed |
+| Task 20 | Update Zustand Store for Dialog State (Target GPA dialog key) | [x] Completed |
+| Task 21 | Create Target GPA Calculation Service (target-gpa.service.ts) | [x] Completed |
+| Task 22 | Build the TargetGPADialog Component (target-gpa-dialog.tsx) | [x] Completed |
+| Task 23 | Add Trigger Button in ActionButtons & Render in main-view.tsx | [x] Completed |
+| Task 24 | Add Virtual Semester action and Dialog state to Zustand Store | [x] Completed |
+| Task 25 | Build GPA Trend Chart Component (gpa-trend-chart.tsx) | [x] Completed |
+| Task 26 | Build AddSemesterDialog Component (add-semester-dialog.tsx) | [x] Completed |
+| Task 27 | Implement Export Report Card Canvas service (export-report-card.ts) | [x] Completed |
+| Task 28 | Update ActionButtons & MainView layouts | [x] Completed |
+

@@ -11,6 +11,8 @@ interface ScoreState {
         addScore: boolean;
         tutorial: boolean;
         recommend: boolean;
+        targetGpa: boolean;
+        addSemester: boolean;
     };
     toggleUploadFile: boolean;
     addScore: (score: IScore) => void;
@@ -22,6 +24,7 @@ interface ScoreState {
     resetScores: () => void;
     toggleDialog: (type: keyof ScoreState['dialogs']) => void;
     setToggleUploadFile: (value: boolean) => void;
+    addVirtualSemester: (semesterName: string, numCourses: number) => void;
 }
 
 export const useScoreStore = create<ScoreState>()(
@@ -32,8 +35,44 @@ export const useScoreStore = create<ScoreState>()(
                 addScore: false,
                 tutorial: false,
                 recommend: false,
+                targetGpa: false,
+                addSemester: false,
             },
             toggleUploadFile: true,
+            addVirtualSemester: (semesterName, numCourses) => set((state) => {
+                const ids = state.scores.map((s) => s.id);
+                let maxId = ids.length > 0 ? Math.max(...ids) : 0;
+                const newScores: IScore[] = [];
+
+                for (let i = 1; i <= numCourses; i++) {
+                    maxId++;
+                    const name = `Môn giả lập ${i} (${semesterName})`;
+                    // Tránh trùng tên
+                    if (state.scores.some((s) => s.name === name)) continue;
+
+                    newScores.push({
+                        id: maxId,
+                        value: name,
+                        name,
+                        countTC: 3,
+                        countLH: 1,
+                        scoreCC: 10,
+                        scoreBT: 10,
+                        scoreGK: 10,
+                        scoreCK: 10,
+                        scoreT10: 10,
+                        scoreCh: 'A',
+                        scoreChChange: null,
+                        semester: semesterName,
+                    });
+                }
+
+                if (newScores.length === 0) return {};
+                return {
+                    scores: [...state.scores, ...newScores],
+                    toggleUploadFile: false,
+                };
+            }),
             addScore: (score) => set((state) => {
                 if (state.scores.some((s) => s.name === score.name)) return state;
                 const ids = state.scores.map((s) => s.id);

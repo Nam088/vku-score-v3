@@ -8,6 +8,9 @@ import ActionButtons from './action-buttons';
 import AddScoreDialog from './add-score-dialog';
 import RecommendDialog from './recommend-dialog';
 import TutorialDialog from './tutorial-dialog';
+import TargetGpaDialog from './target-gpa-dialog';
+import AddSemesterDialog from './add-semester-dialog';
+import GpaTrendChart from './gpa-trend-chart';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { readme2 } from '@/common/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -25,6 +28,9 @@ const MainView: React.FC = () => {
                 <>
                     {/* Bảng điều khiển GPA */}
                     <GpaDisplay />
+
+                    {/* Biểu đồ xu hướng GPA */}
+                    <GpaTrendChart />
 
                     {/* Bảng điểm chính */}
                     <ScoreTable />
@@ -60,6 +66,8 @@ const MainView: React.FC = () => {
             <AddScoreDialog />
             <RecommendDialog />
             <TutorialDialog />
+            <TargetGpaDialog />
+            <AddSemesterDialog />
         </div>
     );
 };
