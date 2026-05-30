@@ -1,9 +1,18 @@
 'use client';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useScoreStore } from '@/store/useScoreStore';
-import { IScore, ScoreCh } from '@/common/interfaces/score';
+import { ScoreCh } from '@/common/interfaces/score';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp } from 'lucide-react';
+import {
+    ResponsiveContainer,
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip
+} from 'recharts';
 
 const gpaMap: Record<ScoreCh, number> = {
     'A': 4.0,
@@ -30,8 +39,37 @@ const parseSemesterOrder = (sem: string): number => {
     return yearVal * 10 + termVal;
 };
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-card/95 border border-border px-3 py-2 rounded-lg shadow-lg backdrop-blur-md text-[11px] font-medium space-y-1">
+                <p className="text-foreground font-semibold border-b border-border pb-1 mb-1">{label}</p>
+                {payload.map((item: any, idx: number) => {
+                    const isSim = item.dataKey === 'gpaSimulated';
+                    const labelText = isSim ? 'GPA giả lập' : 'GPA gốc';
+                    const strokeColor = item.stroke;
+                    return (
+                        <div key={idx} className="flex items-center justify-between gap-6">
+                            <span className="text-muted-foreground">{labelText}:</span>
+                            <span className="font-mono font-bold" style={{ color: strokeColor }}>
+                                {item.value.toFixed(2)}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    }
+    return null;
+};
+
 const GpaTrendChart: React.FC = () => {
     const { scores } = useScoreStore();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const chartData = useMemo(() => {
         if (scores.length === 0) return [];
@@ -91,44 +129,21 @@ const GpaTrendChart: React.FC = () => {
 
     if (chartData.length === 0) return null;
 
-    // Kích thước biểu đồ SVG (viewBox)
-    const viewWidth = 600;
-    const viewHeight = 220;
-    const padding = { top: 20, right: 30, bottom: 45, left: 45 };
-
-    const plotWidth = viewWidth - padding.left - padding.right;
-    const plotHeight = viewHeight - padding.top - padding.bottom;
-
-    // Giới hạn Y: từ 0.0 đến 4.0
-    const getX = (index: number) => {
-        if (chartData.length <= 1) return padding.left + plotWidth / 2;
-        return padding.left + (index * plotWidth) / (chartData.length - 1);
-    };
-
-    const getY = (val: number) => {
-        // Tỷ lệ tuyến tính giữa 0 và 4.0
-        return padding.top + plotHeight - (val / 4.0) * plotHeight;
-    };
-
-    // Tạo chuỗi đường path cho SVG
-    let originalPath = '';
-    let simulatedPath = '';
-
-    chartData.forEach((pt, idx) => {
-        const x = getX(idx);
-        const yOrig = getY(pt.gpaOriginal);
-        const ySim = getY(pt.gpaSimulated);
-
-        if (idx === 0) {
-            originalPath = `M ${x} ${yOrig}`;
-            simulatedPath = `M ${x} ${ySim}`;
-        } else {
-            originalPath += ` L ${x} ${yOrig}`;
-            simulatedPath += ` L ${x} ${ySim}`;
-        }
-    });
-
-    const isGpaImproved = chartData.some(pt => pt.gpaSimulated > pt.gpaOriginal);
+    if (!isMounted) {
+        return (
+            <Card className="border border-border shadow-sm bg-card/60 backdrop-blur-sm">
+                <CardHeader className="py-4 flex flex-row items-center justify-between">
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                        <TrendingUp className="h-4.5 w-4.5 text-blue-500" />
+                        Biểu Đồ Tiến Trình GPA Tích Lũy
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="h-[220px] flex items-center justify-center text-muted-foreground text-xs font-medium">
+                    Đang tải biểu đồ...
+                </CardContent>
+            </Card>
+        );
+    }
 
     return (
         <Card className="border border-border shadow-sm bg-card/60 backdrop-blur-sm">
@@ -149,102 +164,81 @@ const GpaTrendChart: React.FC = () => {
                 </div>
             </CardHeader>
             <CardContent className="pb-4 pt-0">
-                <div className="w-full overflow-x-auto select-none">
-                    <div className="min-w-[500px]">
-                        <svg viewBox={`0 0 ${viewWidth} ${viewHeight}`} className="w-full h-auto">
-                            {/* Grid Lines & Y Axis Labels */}
-                            {[0.0, 1.0, 2.0, 3.0, 4.0].map((level) => {
-                                const y = getY(level);
-                                return (
-                                    <g key={level} className="opacity-40">
-                                        <line
-                                            x1={padding.left}
-                                            y1={y}
-                                            x2={viewWidth - padding.right}
-                                            y2={y}
-                                            stroke="currentColor"
-                                            strokeWidth="0.5"
-                                            strokeDasharray="4 4"
-                                            className="text-border"
-                                        />
-                                        <text
-                                            x={padding.left - 8}
-                                            y={y + 4}
-                                            textAnchor="end"
-                                            className="text-[10px] font-bold fill-muted-foreground font-mono"
-                                        >
-                                            {level.toFixed(1)}
-                                        </text>
-                                    </g>
-                                );
-                            })}
-
-                            {/* X Axis Labels (Semesters) */}
-                            {chartData.map((pt, idx) => {
-                                const x = getX(idx);
-                                return (
-                                    <text
-                                        key={idx}
-                                        x={x}
-                                        y={viewHeight - padding.bottom + 16}
-                                        textAnchor="middle"
-                                        className="text-[9px] font-bold fill-muted-foreground"
-                                    >
-                                        {pt.semester}
-                                    </text>
-                                );
-                            })}
-
-                            {/* Paths */}
-                            <path
-                                d={originalPath}
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
+                <div className="w-full h-[220px] relative">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                            data={chartData}
+                            margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+                        >
+                            <CartesianGrid
                                 strokeDasharray="3 3"
-                                className="text-slate-400 dark:text-zinc-500"
+                                stroke="hsl(var(--border))"
+                                vertical={false}
                             />
-                            
-                            {isGpaImproved && (
-                                <path
-                                    d={simulatedPath}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    className="text-blue-600 dark:text-blue-400 stroke-linecap-round stroke-linejoin-round"
-                                />
-                            )}
-
-                            {/* Data points for Original GPA */}
-                            {chartData.map((pt, idx) => (
-                                <circle
-                                    key={`orig-${idx}`}
-                                    cx={getX(idx)}
-                                    cy={getY(pt.gpaOriginal)}
-                                    r="3"
-                                    className="fill-background stroke-slate-400 dark:stroke-zinc-500 stroke-[1.5]"
-                                />
-                            ))}
-
-                            {/* Data points for Simulated GPA */}
-                            {chartData.map((pt, idx) => {
-                                const isTargetBetter = pt.gpaSimulated > pt.gpaOriginal;
-                                return (
-                                    <circle
-                                        key={`sim-${idx}`}
-                                        cx={getX(idx)}
-                                        cy={getY(pt.gpaSimulated)}
-                                        r="4"
-                                        className={
-                                            isTargetBetter 
-                                                ? "fill-blue-600 dark:fill-blue-400 stroke-background stroke-2" 
-                                                : "fill-background stroke-slate-400 dark:stroke-zinc-500 stroke-[1.5]"
-                                        }
-                                    />
-                                );
-                            })}
-                        </svg>
-                    </div>
+                            <XAxis
+                                dataKey="semester"
+                                tickLine={false}
+                                axisLine={false}
+                                stroke="hsl(var(--muted-foreground))"
+                                fontSize={10}
+                                dy={8}
+                            />
+                            <YAxis
+                                domain={[0, 4.0]}
+                                tickLine={false}
+                                axisLine={false}
+                                stroke="hsl(var(--muted-foreground))"
+                                fontSize={10}
+                                dx={-5}
+                                ticks={[0, 1.0, 2.0, 3.0, 4.0]}
+                                tickFormatter={(val) => val.toFixed(1)}
+                            />
+                            <Tooltip
+                                content={<CustomTooltip />}
+                                cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '4 4' }}
+                                wrapperStyle={{ zIndex: 1000 }}
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="gpaOriginal"
+                                stroke="hsl(var(--gpa-original))"
+                                strokeWidth={2}
+                                strokeDasharray="4 4"
+                                dot={{
+                                    r: 3.5,
+                                    strokeWidth: 1.5,
+                                    stroke: 'hsl(var(--gpa-original))',
+                                    fill: 'hsl(var(--background))'
+                                }}
+                                activeDot={{
+                                    r: 5.5,
+                                    strokeWidth: 1.5,
+                                    stroke: 'hsl(var(--background))',
+                                    fill: 'hsl(var(--gpa-original))'
+                                }}
+                                name="GPA Gốc"
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="gpaSimulated"
+                                stroke="hsl(var(--gpa-simulated))"
+                                strokeWidth={2.5}
+                                dot={{
+                                    r: 4.5,
+                                    strokeWidth: 1.5,
+                                    stroke: 'hsl(var(--gpa-simulated))',
+                                    fill: 'hsl(var(--gpa-simulated))'
+                                }}
+                                activeDot={{
+                                    r: 6.5,
+                                    strokeWidth: 2,
+                                    stroke: 'hsl(var(--background))',
+                                    fill: 'hsl(var(--gpa-simulated))'
+                                }}
+                                name="GPA Giả Lập"
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
                 </div>
             </CardContent>
         </Card>

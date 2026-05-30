@@ -31,4 +31,5 @@
 | Task 27 | Implement Export Report Card Canvas service (export-report-card.ts) | [x] Completed |
 | Task 28 | Update ActionButtons & MainView layouts | [x] Completed |
 | Task 29 | Implement local client-side fallback calculation for recommendations (GitHub Pages support) | [x] Completed |
+| Task 30 | Install Recharts library and rebuild GPA Trend Chart using Recharts | [x] Completed |
 
