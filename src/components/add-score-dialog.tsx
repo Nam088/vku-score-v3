@@ -44,13 +44,10 @@ const getAllSemester = (scores: IScore[]): string[] => {
 };
 
 const AddScoreDialog: React.FC = () => {
-    const { state, dialogs, toggleDialog, addScore, scores } = useScoreStore((state) => ({
-        state: state,
-        dialogs: state.dialogs,
-        toggleDialog: state.toggleDialog,
-        addScore: state.addScore,
-        scores: state.scores,
-    }));
+    const dialogs = useScoreStore((state) => state.dialogs);
+    const toggleDialog = useScoreStore((state) => state.toggleDialog);
+    const addScore = useScoreStore((state) => state.addScore);
+    const scores = useScoreStore((state) => state.scores);
 
     const [isShowExtra, setIsShowExtra] = useState(false);
     const [semesters, setSemesters] = useState<string[]>(getAllSemester(scores));
