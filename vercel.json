@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/vku-score-v3",
+      "permanent": true
+    }
+  ]
+}
