@@ -4,7 +4,7 @@ import './globals.css';
 import Header from '@/core/layout/Header';
 import Footer from '@/core/layout/Footer';
 import React from 'react';
-import { ThemeProvider } from 'next-themes';
+import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['vietnamese', 'latin'] });
