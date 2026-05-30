@@ -1,10 +1,10 @@
 # Tasks Tracker
 
-| Step | Description | Status |
+| Task | Description | Status |
 |---|---|---|
-| 1 | Explore project context | [x] Completed |
-| 2 | Ask clarifying questions | [x] Completed |
-| 3 | Propose 2-3 approaches | [x] Completed |
-| 4 | Present design sections | [x] Completed |
-| 5 | Write design doc | [x] Completed |
-| 6 | Transition to implementation | [/] In Progress |
+| Task 1 | Package Upgrades & Dependency Installation | [x] Completed |
+| Task 2 | Create Zustand Store | [x] Completed |
+| Task 3 | Create Server-side API Route for Recommendations | [x] Completed |
+| Task 4 | Migrate Layout, App Config, Theme & Global Styles | [ ] Not Started |
+| Task 5 | Build UI Components | [ ] Not Started |
+| Task 6 | Hook into App Home Page & Cleanup Old Views | [ ] Not Started |
