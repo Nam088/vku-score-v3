@@ -25,6 +25,7 @@ import { useScoreStore } from '@/store/useScoreStore';
 import { Trash2, RotateCcw, Search, Trash } from 'lucide-react';
 import { IScore, ScoreCh } from '@/common/interfaces/score';
 import DebouncedInput from './debounced-input';
+import { cn } from '@/lib/utils';
 
 interface IScoreWithAction extends IScore {
     action?: string;
@@ -57,6 +58,21 @@ const scoreOptionsMap: { [key in Exclude<ScoreCh, null>]: ScoreCh[] } = {
 };
 
 const columnHelper = createColumnHelper<IScoreWithAction>();
+
+const columnStyleMap: { [key: string]: string } = {
+    id: 'w-[60px] min-w-[60px] text-center',
+    name: 'whitespace-normal text-left min-w-[200px] max-w-[450px]',
+    countTC: 'w-[80px] min-w-[80px] text-center',
+    countLH: 'w-[85px] min-w-[85px] text-center',
+    scoreCC: 'w-[85px] min-w-[85px] text-center',
+    scoreBT: 'w-[85px] min-w-[85px] text-center',
+    scoreGK: 'w-[85px] min-w-[85px] text-center',
+    scoreCK: 'w-[85px] min-w-[85px] text-center',
+    scoreT10: 'w-[100px] min-w-[100px] text-center',
+    scoreCh: 'w-[90px] min-w-[90px] text-center',
+    scoreChChange: 'w-[110px] min-w-[110px] text-center',
+    action: 'w-[100px] min-w-[100px] text-center',
+};
 
 const ScoreTable: React.FC = () => {
     const {
@@ -111,7 +127,7 @@ const ScoreTable: React.FC = () => {
             }),
             columnHelper.accessor('name', {
                 header: 'Tên học phần',
-                cell: (info) => <div className="text-left font-medium max-w-xs sm:max-w-sm md:max-w-md truncate">{info.row.original.name}</div>,
+                cell: (info) => <div className="font-medium text-left line-clamp-2 break-words">{info.row.original.name}</div>,
             }),
             columnHelper.accessor('countTC', {
                 header: 'Tín chỉ',
@@ -292,13 +308,16 @@ const ScoreTable: React.FC = () => {
                             <TableHeader>
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <TableRow key={headerGroup.id}>
-                                        {headerGroup.headers.map((header) => (
-                                            <TableHead key={header.id} className="text-center font-bold">
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(header.column.columnDef.header, header.getContext())}
-                                            </TableHead>
-                                        ))}
+                                        {headerGroup.headers.map((header) => {
+                                            const styleClass = columnStyleMap[header.column.id] || '';
+                                            return (
+                                                <TableHead key={header.id} className={cn("font-bold", styleClass)}>
+                                                    {header.isPlaceholder
+                                                        ? null
+                                                        : flexRender(header.column.columnDef.header, header.getContext())}
+                                                </TableHead>
+                                            );
+                                        })}
                                     </TableRow>
                                 ))}
                             </TableHeader>
@@ -306,11 +325,14 @@ const ScoreTable: React.FC = () => {
                                 {table.getRowModel().rows.length > 0 ? (
                                     table.getRowModel().rows.map((row) => (
                                         <TableRow key={row.id} className={`text-center ${getRowBgColor(row.original)}`}>
-                                            {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id} className="p-2 border-r last:border-0 align-middle">
-                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                </TableCell>
-                                            ))}
+                                            {row.getVisibleCells().map((cell) => {
+                                                const styleClass = columnStyleMap[cell.column.id] || '';
+                                                return (
+                                                    <TableCell key={cell.id} className={cn("p-2 border-r last:border-0 align-middle", styleClass)}>
+                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                    </TableCell>
+                                                );
+                                            })}
                                         </TableRow>
                                     ))
                                 ) : (
@@ -336,24 +358,30 @@ const ScoreTable: React.FC = () => {
                                     <TableHeader>
                                         {table.getHeaderGroups().map((headerGroup) => (
                                             <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                                                {headerGroup.headers.map((header) => (
-                                                    <TableHead key={header.id} className="text-center font-bold h-9">
-                                                        {header.isPlaceholder
-                                                            ? null
-                                                            : flexRender(header.column.columnDef.header, header.getContext())}
-                                                    </TableHead>
-                                                ))}
+                                                {headerGroup.headers.map((header) => {
+                                                    const styleClass = columnStyleMap[header.column.id] || '';
+                                                    return (
+                                                        <TableHead key={header.id} className={cn("font-bold h-9", styleClass)}>
+                                                            {header.isPlaceholder
+                                                                ? null
+                                                                : flexRender(header.column.columnDef.header, header.getContext())}
+                                                        </TableHead>
+                                                    );
+                                                })}
                                             </TableRow>
                                         ))}
                                     </TableHeader>
                                     <TableBody>
                                         {groupedRowModel[semester].map((row) => (
                                             <TableRow key={row.id} className={`text-center ${getRowBgColor(row.original)}`}>
-                                                {row.getVisibleCells().map((cell) => (
-                                                    <TableCell key={cell.id} className="p-2 border-r last:border-0 align-middle">
-                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                    </TableCell>
-                                                ))}
+                                                {row.getVisibleCells().map((cell) => {
+                                                    const styleClass = columnStyleMap[cell.column.id] || '';
+                                                    return (
+                                                        <TableCell key={cell.id} className={cn("p-2 border-r last:border-0 align-middle", styleClass)}>
+                                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                        </TableCell>
+                                                    );
+                                                })}
                                             </TableRow>
                                         ))}
                                     </TableBody>
