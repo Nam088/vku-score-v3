@@ -1,20 +1,13 @@
 import type { Metadata } from 'next';
-import { Roboto, Geist } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
-import ThemeProviderWrapper from '@/core/ThemeProviderWrapper';
 import Header from '@/core/layout/Header';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import React from 'react';
 import Footer from '@/core/layout/Footer';
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const roboto = Roboto({
-    weight: '400',
-    subsets: ['vietnamese'],
-});
+const inter = Inter({ subsets: ['vietnamese', 'latin'] });
 
 export const metadata: Metadata = {
     title: 'VKU Score',
@@ -22,19 +15,18 @@ export const metadata: Metadata = {
 };
 
 const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-
     return (
-        <html lang='en' className={cn("font-sans", geist.variable)}>
-        <body className={`${roboto.className} bg-gray-100`}>
-        <ThemeProviderWrapper>
-            <Header />
-            <main className='p-4'>
-                {children}
-                <ToastContainer />
-            </main>
-            <Footer />
-        </ThemeProviderWrapper>
-        </body>
+        <html lang='vi' suppressHydrationWarning>
+            <body className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300`}>
+                <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
+                    <Header />
+                    <main className='flex-grow container mx-auto p-4 md:p-6 max-w-7xl space-y-6'>
+                        {children}
+                    </main>
+                    <Footer />
+                    <Toaster position="top-right" richColors />
+                </ThemeProvider>
+            </body>
         </html>
     );
 };

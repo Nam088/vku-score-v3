@@ -1,26 +1,22 @@
-import { Box, Typography } from '@mui/material';
 import Link from 'next/link';
 import React from 'react';
 
-
-
-
 const Footer = () => (
-    <Box sx={{
-        backgroundColor: '#333', // Màu nền của box bọc ngoài
-        padding: '16px', // Khoảng đệm xung quanh nội dung
-        color: '#fff', // Màu chữ của footer
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    }}>
-        <Typography variant="body1" >
-            © {new Date().getFullYear()} {' '}
-            <Link href="https://github.com/Nam077" target="_blank">
-                by Nam077
-            </Link>
-        </Typography>
-    </Box>
+    <footer className="w-full border-t bg-muted/40 py-6 text-center text-sm text-muted-foreground">
+        <div className="container mx-auto">
+            <p>
+                © {new Date().getFullYear()} by{' '}
+                <Link
+                    href="https://github.com/Nam077"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium underline underline-offset-4 hover:text-foreground transition-colors"
+                >
+                    Nam077
+                </Link>
+            </p>
+        </div>
+    </footer>
 );
 
 export default Footer;
