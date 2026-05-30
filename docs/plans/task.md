@@ -7,4 +7,4 @@
 | Task 3 | Create Server-side API Route for Recommendations | [x] Completed |
 | Task 4 | Migrate Layout, App Config, Theme & Global Styles | [x] Completed |
 | Task 5 | Build UI Components | [x] Completed |
-| Task 6 | Hook into App Home Page & Cleanup Old Views | [/] In Progress |
+| Task 6 | Hook into App Home Page & Cleanup Old Views | [x] Completed |
