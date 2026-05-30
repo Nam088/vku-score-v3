@@ -130,6 +130,9 @@ const RecommendDialog: React.FC = () => {
                         <DialogTitle className="text-xl font-bold flex items-center gap-2">
                             <Sparkles className="h-5 w-5 text-indigo-500 animate-pulse" />
                             Gợi ý cải thiện học phần
+                            {loading && recommendations.length > 0 && (
+                                <Loader2 className="h-4 w-4 text-indigo-500 animate-spin ml-1" />
+                            )}
                         </DialogTitle>
                         <p className="text-sm text-muted-foreground mt-1">
                             Các môn học có tiềm năng tăng điểm GPA của bạn cao nhất khi học cải thiện.
@@ -159,7 +162,7 @@ const RecommendDialog: React.FC = () => {
                     </div>
 
                     <div className="rounded-xl border bg-background/50 overflow-hidden">
-                        {loading ? (
+                        {loading && recommendations.length === 0 ? (
                             <div className="h-40 flex flex-col items-center justify-center gap-2">
                                 <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
                                 <span className="text-sm text-muted-foreground">Đang tính toán đề xuất điểm...</span>
