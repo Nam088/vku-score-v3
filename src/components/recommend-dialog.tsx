@@ -24,6 +24,7 @@ import { Sparkles, Loader2, Search, RotateCcw } from 'lucide-react';
 import DebouncedInput from './debounced-input';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { cn } from '@/lib/utils';
+import { fuzzyMatch, HighlightText } from '@/common/utils';
 import { getRecommendationsLocal } from '@/common/services/recommend.service';
 
 interface IScoreWithAction extends IScore {
@@ -117,10 +118,9 @@ const RecommendDialog: React.FC = () => {
 
     const filteredScores = useMemo(() => {
         if (!searchQuery) return recommendations;
-        const query = searchQuery.toLowerCase();
         return recommendations.filter((score) =>
-            score.name.toLowerCase().includes(query) ||
-            score.scoreCh?.toLowerCase().includes(query)
+            fuzzyMatch(score.name, searchQuery) ||
+            (score.scoreCh !== null && score.scoreCh !== undefined && fuzzyMatch(score.scoreCh, searchQuery))
         );
     }, [recommendations, searchQuery]);
 
@@ -158,7 +158,7 @@ const RecommendDialog: React.FC = () => {
                 
                 {/* Course Name */}
                 <h4 className="text-sm font-bold text-foreground leading-snug">
-                    {row.name}
+                    <HighlightText text={row.name} query={searchQuery} />
                 </h4>
 
                 {/* Extra columns (CC, BT, GK, CK, countLH) if enabled */}
@@ -331,7 +331,7 @@ const RecommendDialog: React.FC = () => {
                                                             </TableCell>
                                                             <TableCell className="whitespace-normal text-left min-w-[200px] max-w-[350px] p-2 align-middle font-medium">
                                                                 <div className="line-clamp-2 break-words text-left">
-                                                                    {row.name}
+                                                                    <HighlightText text={row.name} query={searchQuery} />
                                                                 </div>
                                                             </TableCell>
                                                             <TableCell className="w-[80px] min-w-[80px] text-center p-2 align-middle">

@@ -25,6 +25,7 @@ import { Label } from '@/components/ui/label';
 import { useScoreStore } from '@/store/useScoreStore';
 import { RotateCcw, Search, Trash, ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react';
 import { IScore, ScoreCh } from '@/common/interfaces/score';
+import { fuzzyMatch, HighlightText } from '@/common/utils';
 import DebouncedInput from './debounced-input';
 import { cn } from '@/lib/utils';
 import { CustomSelect } from '@/components/ui/custom-select';
@@ -125,13 +126,15 @@ const ScoreTable: React.FC = () => {
     const sortedScores = useMemo(() => {
         if (!searchQuery) return scores;
 
-        const query = searchQuery.toLowerCase();
         const fieldsToCheck: (keyof IScore)[] = [
             'name', 'countTC', 'countLH', 'scoreCC', 'scoreBT', 'scoreGK', 'scoreCK', 'scoreT10', 'scoreCh'
         ];
 
         return scores.filter(score =>
-            fieldsToCheck.some(field => score[field]?.toString().toLowerCase().includes(query))
+            fieldsToCheck.some(field => {
+                const val = score[field];
+                return val !== null && val !== undefined && fuzzyMatch(val.toString(), searchQuery);
+            })
         );
     }, [scores, searchQuery]);
 
@@ -143,7 +146,7 @@ const ScoreTable: React.FC = () => {
             }),
             columnHelper.accessor('name', {
                 header: 'Tên học phần',
-                cell: (info) => <div className="font-medium text-left line-clamp-2 break-words">{info.row.original.name}</div>,
+                cell: (info) => <div className="font-medium text-left line-clamp-2 break-words"><HighlightText text={info.row.original.name} query={searchQuery} /></div>,
             }),
             columnHelper.accessor('countTC', {
                 header: 'Tín chỉ',
@@ -295,7 +298,7 @@ const ScoreTable: React.FC = () => {
                 
                 {/* Course Name */}
                 <h4 className="text-sm font-bold text-foreground leading-snug">
-                    {item.name}
+                    <HighlightText text={item.name} query={searchQuery} />
                 </h4>
 
                 {/* Extra columns (CC, BT, GK, CK) if enabled */}
