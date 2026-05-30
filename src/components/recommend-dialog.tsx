@@ -24,6 +24,7 @@ import { Sparkles, Loader2, Search, RotateCcw } from 'lucide-react';
 import DebouncedInput from './debounced-input';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { cn } from '@/lib/utils';
+import { getRecommendationsLocal } from '@/common/services/recommend.service';
 
 interface IScoreWithAction extends IScore {
     difference: number;
@@ -63,7 +64,7 @@ const RecommendDialog: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isShowExtraColumn, setIsShowExtraColumn] = useState(false);
 
-    // Lấy đề xuất từ API
+    // Lấy đề xuất từ API, tự động fallback tính client-side nếu API không hoạt động (ví dụ GitHub Pages)
     const fetchRecommendations = async () => {
         if (scores.length === 0) return;
         setLoading(true);
@@ -75,12 +76,21 @@ const RecommendDialog: React.FC = () => {
                 },
                 body: JSON.stringify({ scores }),
             });
-            const data = await res.json();
-            if (data.recommendations) {
-                setRecommendations(data.recommendations);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.recommendations) {
+                    setRecommendations(data.recommendations);
+                    return;
+                }
             }
+            // Nếu API trả về lỗi (như 404 trên GitHub Pages), fallback tính local
+            console.warn('API recommend failed. Falling back to local calculations.');
+            const localData = getRecommendationsLocal(scores);
+            setRecommendations(localData);
         } catch (error) {
-            console.error('Failed to load recommendations:', error);
+            console.warn('Failed to call API recommend, using local calculation fallback:', error);
+            const localData = getRecommendationsLocal(scores);
+            setRecommendations(localData);
         } finally {
             setLoading(false);
         }

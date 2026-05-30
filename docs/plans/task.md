@@ -30,4 +30,5 @@
 | Task 26 | Build AddSemesterDialog Component (add-semester-dialog.tsx) | [x] Completed |
 | Task 27 | Implement Export Report Card Canvas service (export-report-card.ts) | [x] Completed |
 | Task 28 | Update ActionButtons & MainView layouts | [x] Completed |
+| Task 29 | Implement local client-side fallback calculation for recommendations (GitHub Pages support) | [x] Completed |
 
