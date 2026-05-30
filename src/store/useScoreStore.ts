@@ -22,6 +22,7 @@ interface ScoreState {
     changeScoreT10: (row: IScore, newValue: number) => void;
     setScores: (scores: IScore[]) => void;
     resetScores: () => void;
+    resetAllChanges: () => void;
     toggleDialog: (type: keyof ScoreState['dialogs']) => void;
     setToggleUploadFile: (value: boolean) => void;
     addVirtualSemester: (semesterName: string, numCourses: number) => void;
@@ -165,6 +166,17 @@ export const useScoreStore = create<ScoreState>()(
             resetScores: () => set(() => ({
                 scores: [],
                 toggleUploadFile: true,
+            })),
+            resetAllChanges: () => set((state) => ({
+                scores: state.scores.map((s) => {
+                    if (s.scoreChChange == null && s.scoreT10Original == null) return s;
+                    const restoredT10 = s.scoreT10Original != null ? s.scoreT10Original : s.scoreT10;
+                    const restoredCh = s.scoreChOriginal != null ? s.scoreChOriginal : s.scoreCh;
+                    const updated = { ...s, scoreT10: restoredT10, scoreCh: restoredCh, scoreChChange: null };
+                    delete updated.scoreT10Original;
+                    delete updated.scoreChOriginal;
+                    return updated;
+                }),
             })),
             toggleDialog: (type) => set((state) => ({
                 dialogs: { ...state.dialogs, [type]: !state.dialogs[type] },

@@ -86,6 +86,7 @@ const ScoreTable: React.FC = () => {
         changeScoreCh,
         changeScoreT10,
         resetScores,
+        resetAllChanges,
     } = useScoreStore();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -121,6 +122,11 @@ const ScoreTable: React.FC = () => {
     const handleRemove = useCallback((id: number) => {
         deleteScore(id);
     }, [deleteScore]);
+
+    const hasAnyChanges = useMemo(
+        () => scores.some((s) => s.scoreChChange != null || s.scoreT10Original != null),
+        [scores]
+    );
 
     // Lọc và sắp xếp scores
     const sortedScores = useMemo(() => {
@@ -235,7 +241,7 @@ const ScoreTable: React.FC = () => {
                 ),
             }),
         ],
-        [isShowExtraColumn, handleDiem10Change, handleScoreChange, handleRemove]
+        [isShowExtraColumn, handleDiem10Change, handleScoreChange, handleRemove, searchQuery]
     );
 
     const table = useReactTable({
@@ -392,9 +398,9 @@ const ScoreTable: React.FC = () => {
 
     return (
         <Card className="w-full shadow-md bg-card/60 backdrop-blur-sm border">
-            <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <CardHeader className="flex flex-col md:flex-row justify-between items-start gap-4">
                 <CardTitle className="text-xl font-bold">Bảng Điểm Học Tập</CardTitle>
-                <div className="flex flex-wrap items-center gap-3 text-sm">
+                <div className="flex flex-wrap items-center gap-3 text-sm self-start ml-auto">
                     {/* Collapse / Expand all — chỉ hiện khi không search */}
                     {!searchQuery && Object.keys(groupedRowModel).length > 0 && (
                         <div className="flex items-center gap-1 border-r pr-3">
@@ -436,6 +442,17 @@ const ScoreTable: React.FC = () => {
                         />
                         <Label htmlFor="toggle-extra" className="cursor-pointer">Cột bổ sung</Label>
                     </div>
+                    {hasAnyChanges && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={resetAllChanges}
+                            className="h-8 text-xs font-semibold gap-1.5"
+                        >
+                            <RotateCcw className="h-3.5 w-3.5" />
+                            Reset thay đổi
+                        </Button>
+                    )}
                     <Button
                         variant="destructive"
                         size="sm"
