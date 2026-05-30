@@ -1,6 +1,7 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import { cn } from '@/lib/utils';
 import { ScoreCh } from '@/common/interfaces/score';
 
@@ -54,69 +55,65 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     className,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    const handleToggle = () => {
-        if (!disabled) setIsOpen(!isOpen);
-    };
-
-    const handleSelect = (val: ScoreCh) => {
-        onChange(val);
-        setIsOpen(false);
-    };
 
     return (
-        <div ref={containerRef} className={cn('relative inline-block w-20 text-left', className)}>
-            <button
-                type="button"
-                onClick={handleToggle}
-                disabled={disabled}
-                className={cn(
-                    'flex items-center justify-between w-full h-8 px-2 py-1 text-xs font-bold border rounded-md shadow-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-ring select-none',
-                    disabled
-                        ? 'opacity-60 cursor-not-allowed bg-muted text-muted-foreground'
-                        : 'bg-background hover:bg-muted/50 cursor-pointer border-border',
-                    value && getBadgeColorClass(value)
-                )}
-            >
-                <span className="flex-1 text-center pr-1">{value}</span>
-                <ChevronDown className={cn('h-3.5 w-3.5 opacity-70 shrink-0 transition-transform duration-200', isOpen && 'rotate-180')} />
-            </button>
+        <PopoverPrimitive.Root open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverPrimitive.Trigger
+                render={
+                    <button
+                        type="button"
+                        disabled={disabled}
+                        className={cn(
+                            'flex items-center justify-between w-20 h-8 px-2 py-1 text-xs font-bold border rounded-md shadow-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-ring select-none',
+                            disabled
+                                ? 'opacity-60 cursor-not-allowed bg-muted text-muted-foreground'
+                                : 'bg-background hover:bg-muted/50 cursor-pointer border-border',
+                            value && getBadgeColorClass(value),
+                            className
+                        )}
+                    >
+                        <span className="flex-1 text-center pr-1">{value}</span>
+                        <ChevronDown className={cn('h-3.5 w-3.5 opacity-70 shrink-0 transition-transform duration-200', isOpen && 'rotate-180')} />
+                    </button>
+                }
+            />
 
-            {isOpen && (
-                <div className="absolute z-50 left-1/2 -translate-x-1/2 mt-1 w-20 rounded-md border bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none animate-in fade-in-0 zoom-in-95 duration-100">
-                    <div className="flex flex-col gap-0.5 max-h-48 overflow-y-auto">
-                        {options.map((opt) => {
-                            const isSelected = opt === value;
-                            return (
-                                <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => handleSelect(opt)}
-                                    className={cn(
-                                        'relative flex items-center justify-center w-full h-7 text-xs font-bold rounded-sm px-1.5 transition-colors cursor-pointer select-none',
-                                        isSelected
-                                            ? getBadgeColorClass(opt) + ' ring-1 ring-inset ring-foreground/15'
-                                            : cn('text-foreground/80 bg-transparent', getBadgeHoverColorClass(opt))
-                                    )}
-                                >
-                                    {opt}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-        </div>
+            <PopoverPrimitive.Portal>
+                <PopoverPrimitive.Positioner
+                    align="center"
+                    side="bottom"
+                    sideOffset={4}
+                    className="isolate z-50"
+                >
+                    <PopoverPrimitive.Popup
+                        className="z-50 flex w-20 flex-col gap-0.5 rounded-md border bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none animate-in fade-in-0 zoom-in-95 duration-100"
+                    >
+                        <div className="flex flex-col gap-0.5 max-h-48 overflow-y-auto">
+                            {options.map((opt) => {
+                                const isSelected = opt === value;
+                                return (
+                                    <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => {
+                                            onChange(opt);
+                                            setIsOpen(false);
+                                        }}
+                                        className={cn(
+                                            'relative flex items-center justify-center w-full h-7 text-xs font-bold rounded-sm px-1.5 transition-colors cursor-pointer select-none',
+                                            isSelected
+                                                ? getBadgeColorClass(opt) + ' ring-1 ring-inset ring-foreground/15'
+                                                : cn('text-foreground/80 bg-transparent', getBadgeHoverColorClass(opt))
+                                        )}
+                                    >
+                                        {opt}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </PopoverPrimitive.Popup>
+                </PopoverPrimitive.Positioner>
+            </PopoverPrimitive.Portal>
+        </PopoverPrimitive.Root>
     );
 };

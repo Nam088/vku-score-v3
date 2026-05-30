@@ -16,3 +16,4 @@
 | Task 12 | Fix DebouncedInput trigger on mount and null checks for original scores | [x] Completed |
 | Task 13 | Create CustomSelect component and replace raw selects in ScoreTable and RecommendDialog | [x] Completed |
 | Task 14 | Keep semesters grouping when searching scores | [x] Completed |
+| Task 15 | Fix CustomSelect overflow cutoff using Base UI Popover Portal | [x] Completed |
