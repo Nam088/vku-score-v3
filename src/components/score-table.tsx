@@ -26,6 +26,7 @@ import { RotateCcw, Search, Trash, ChevronDown, ChevronsDownUp, ChevronsUpDown }
 import { IScore, ScoreCh } from '@/common/interfaces/score';
 import DebouncedInput from './debounced-input';
 import { cn } from '@/lib/utils';
+import { CustomSelect } from '@/components/ui/custom-select';
 
 interface IScoreWithAction extends IScore {
     action?: string;
@@ -128,14 +129,9 @@ const ScoreTable: React.FC = () => {
             'name', 'countTC', 'countLH', 'scoreCC', 'scoreBT', 'scoreGK', 'scoreCK', 'scoreT10', 'scoreCh'
         ];
 
-        return [...scores].sort((a, b) => {
-            const aMatches = fieldsToCheck.some(field => a[field]?.toString().toLowerCase().includes(query));
-            const bMatches = fieldsToCheck.some(field => b[field]?.toString().toLowerCase().includes(query));
-
-            if (aMatches && !bMatches) return -1;
-            if (!aMatches && bMatches) return 1;
-            return 0;
-        });
+        return scores.filter(score =>
+            fieldsToCheck.some(field => score[field]?.toString().toLowerCase().includes(query))
+        );
     }, [scores, searchQuery]);
 
     const columns = useMemo<ColumnDef<IScoreWithAction, any>[]>(
@@ -197,20 +193,13 @@ const ScoreTable: React.FC = () => {
                     const options = scoreOptionsMap[originalScoreCh] || ['A', 'B', 'C', 'D', 'F'];
 
                     return (
-                        <div className="flex justify-center">
-                            <select
+                            <CustomSelect
                                 disabled={originalScoreCh === 'A'}
                                 value={currentValue}
-                                onChange={(e) => handleScoreChange(info.row.original, e.target.value as ScoreCh)}
-                                className="h-8 w-20 border rounded px-1 text-xs bg-background focus:ring-1 focus:ring-ring"
-                            >
-                                {options.map((opt) => (
-                                    <option key={opt} value={opt}>
-                                        {opt}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                                onChange={(val) => handleScoreChange(info.row.original, val)}
+                                options={options}
+                            />
+
                     );
                 },
             }),
@@ -227,7 +216,7 @@ const ScoreTable: React.FC = () => {
                         >
                             <Trash className="h-4 w-4" />
                         </Button>
-                        {(info.row.original.scoreChChange || info.row.original.scoreT10Original !== undefined) && (
+                        {(info.row.original.scoreChChange || info.row.original.scoreT10Original != null) && (
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -348,52 +337,9 @@ const ScoreTable: React.FC = () => {
                 </div>
 
                 <div className="rounded-xl border bg-background/50 overflow-hidden">
-                    {searchQuery ? (
-                        // Hiển thị một bảng duy nhất khi tìm kiếm
-                        <Table>
-                            <TableHeader>
-                                {table.getHeaderGroups().map((headerGroup) => (
-                                    <TableRow key={headerGroup.id}>
-                                        {headerGroup.headers.map((header) => {
-                                            const styleClass = columnStyleMap[header.column.id] || '';
-                                            return (
-                                                <TableHead key={header.id} className={cn("font-bold", styleClass)}>
-                                                    {header.isPlaceholder
-                                                        ? null
-                                                        : flexRender(header.column.columnDef.header, header.getContext())}
-                                                </TableHead>
-                                            );
-                                        })}
-                                    </TableRow>
-                                ))}
-                            </TableHeader>
-                            <TableBody>
-                                {table.getRowModel().rows.length > 0 ? (
-                                    table.getRowModel().rows.map((row) => (
-                                        <TableRow key={row.id} className={`text-center ${getRowBgColor(row.original)}`}>
-                                            {row.getVisibleCells().map((cell) => {
-                                                const styleClass = columnStyleMap[cell.column.id] || '';
-                                                return (
-                                                    <TableCell key={cell.id} className={cn("p-2 align-middle", styleClass)}>
-                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                    </TableCell>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                                            Không tìm thấy môn học.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    ) : (
-                        // Hiển thị các bảng gom nhóm theo học kỳ (Đã tối ưu O(N) hoàn toàn)
+                    {Object.keys(groupedRowModel).length > 0 ? (
                         Object.keys(groupedRowModel).map((semester) => {
-                            const isCollapsed = collapsedSemesters.has(semester);
+                            const isCollapsed = searchQuery ? false : collapsedSemesters.has(semester);
                             const rows = groupedRowModel[semester];
                             const changedCount = rows.filter(r =>
                                 (r.original.scoreCh !== r.original.scoreChChange && r.original.scoreChChange != null)
@@ -468,6 +414,10 @@ const ScoreTable: React.FC = () => {
                                 </div>
                             );
                         })
+                    ) : (
+                        <div className="h-24 flex items-center justify-center text-center text-muted-foreground text-sm">
+                            Không tìm thấy môn học.
+                        </div>
                     )}
                 </div>
             </CardContent>

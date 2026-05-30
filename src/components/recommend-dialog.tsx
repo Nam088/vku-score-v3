@@ -22,6 +22,7 @@ import { useScoreStore } from '@/store/useScoreStore';
 import { IScore, ScoreCh } from '@/common/interfaces/score';
 import { Sparkles, Loader2, Search, RotateCcw } from 'lucide-react';
 import DebouncedInput from './debounced-input';
+import { CustomSelect } from '@/components/ui/custom-select';
 
 interface IScoreWithAction extends IScore {
     difference: number;
@@ -224,24 +225,18 @@ const RecommendDialog: React.FC = () => {
                                                         </span>
                                                     </TableCell>
                                                     <TableCell className="w-[110px] min-w-[110px] text-center p-2 align-middle">
-                                                        <select
-                                                            disabled={originalScoreCh === 'A'}
-                                                            value={currentValue}
-                                                            onChange={(e) => handleScoreChange(row, e.target.value as ScoreCh)}
-                                                            className="h-8 w-20 border rounded px-1 text-xs bg-background focus:ring-1 focus:ring-ring"
-                                                        >
-                                                            {options.map((opt) => (
-                                                                <option key={opt} value={opt}>
-                                                                    {opt}
-                                                                </option>
-                                                            ))}
-                                                        </select>
+                                                         <CustomSelect
+                                                             disabled={originalScoreCh === 'A'}
+                                                             value={currentValue}
+                                                             onChange={(val) => handleScoreChange(row, val as ScoreCh)}
+                                                             options={options}
+                                                         />
                                                     </TableCell>
                                                     <TableCell className="w-[100px] min-w-[100px] text-center p-2 align-middle font-bold text-indigo-600 dark:text-indigo-400">
                                                         {row.scorePredict.toFixed(2)}
                                                     </TableCell>
                                                     <TableCell className="w-[90px] min-w-[90px] text-center p-2 align-middle">
-                                                        {(row.scoreChChange || row.scoreT10Original !== undefined) && (
+                                                        {(row.scoreChChange || row.scoreT10Original != null) && (
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"

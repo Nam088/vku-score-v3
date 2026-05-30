@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 
 interface DebouncedInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
@@ -15,27 +15,44 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
     ...props
 }) => {
     const [value, setValue] = useState(initialValue);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+    // Sync state only when initialValue changes from parent
     useEffect(() => {
         setValue(initialValue);
     }, [initialValue]);
 
+    // Clean up timeout on unmount
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            onChange(value);
-        }, debounce);
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
-        return () => clearTimeout(timeout);
-    }, [value, onChange, debounce]);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
+        setValue(newValue);
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            onChange(newValue);
+        }, debounce);
+    };
 
     return (
         <Input
             {...props}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={handleChange}
             className={className}
         />
     );
 };
 
 export default memo(DebouncedInput);
+

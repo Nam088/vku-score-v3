@@ -51,8 +51,8 @@ export const useScoreStore = create<ScoreState>()(
                 scores: state.scores.map((s) => {
                     if (s.id === row.id) {
                         if (newValue === null) {
-                            const restoredT10 = s.scoreT10Original !== undefined ? s.scoreT10Original : s.scoreT10;
-                            const restoredCh = s.scoreChOriginal !== undefined ? s.scoreChOriginal : s.scoreCh;
+                            const restoredT10 = s.scoreT10Original != null ? s.scoreT10Original : s.scoreT10;
+                            const restoredCh = s.scoreChOriginal != null ? s.scoreChOriginal : s.scoreCh;
                             const updated = {
                                 ...s,
                                 scoreT10: restoredT10,
@@ -82,13 +82,29 @@ export const useScoreStore = create<ScoreState>()(
                     if (t10 >= 4.0) return 'D';
                     return 'F';
                 };
-                const newScoreCh = convertT10ToCh(newValue);
 
                 return {
                     scores: state.scores.map((s) => {
                         if (s.id === row.id) {
-                            const backupT10 = s.scoreT10Original !== undefined ? s.scoreT10Original : s.scoreT10;
-                            const backupCh = s.scoreChOriginal !== undefined ? s.scoreChOriginal : s.scoreCh;
+                            const originalT10 = s.scoreT10Original != null ? s.scoreT10Original : s.scoreT10;
+                            const originalCh = s.scoreChOriginal != null ? s.scoreChOriginal : s.scoreCh;
+
+                            if (newValue === originalT10) {
+                                const updated = {
+                                    ...s,
+                                    scoreT10: originalT10,
+                                    scoreCh: originalCh,
+                                    scoreChChange: null,
+                                };
+                                delete updated.scoreT10Original;
+                                delete updated.scoreChOriginal;
+                                return updated;
+                            }
+
+                            const backupT10 = s.scoreT10Original != null ? s.scoreT10Original : s.scoreT10;
+                            const backupCh = s.scoreChOriginal != null ? s.scoreChOriginal : s.scoreCh;
+                            const newScoreCh = convertT10ToCh(newValue);
+
                             return {
                                 ...s,
                                 scoreT10Original: backupT10,
