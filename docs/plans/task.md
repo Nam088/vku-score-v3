@@ -8,3 +8,7 @@
 | Task 4 | Migrate Layout, App Config, Theme & Global Styles | [x] Completed |
 | Task 5 | Build UI Components | [x] Completed |
 | Task 6 | Hook into App Home Page & Cleanup Old Views | [x] Completed |
+| Task 7 | Fix Dark/Light Mode Styling & API Route BasePath | [x] Completed |
+| Task 8 | Expand Layout Max Width | [x] Completed |
+| Task 9 | Optimize ScoreTable Columns Sizing and Wrapping | [x] Completed |
+| Task 10 | Optimize RecommendDialog Columns Sizing and Wrapping | [x] Completed |
