@@ -114,9 +114,9 @@ const RecommendDialog: React.FC = () => {
 
     const getRowBgColor = (row: IScore) => {
         if ((row.scoreCh !== row.scoreChChange && row.scoreChChange !== null) || row.scoreT10Original !== undefined) {
-            return 'bg-emerald-500/10 dark:bg-emerald-500/5 hover:bg-emerald-500/20';
+            return 'border-l-4 border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10 hover:bg-emerald-500/15';
         }
-        return 'hover:bg-muted/50';
+        return 'border-l-4 border-l-transparent hover:bg-muted/50';
     };
 
     return (
@@ -193,35 +193,35 @@ const RecommendDialog: React.FC = () => {
  
                                             return (
                                                 <TableRow key={row.id} className={`text-center ${getRowBgColor(row)}`}>
-                                                    <TableCell className="w-[50px] min-w-[50px] text-center p-2 border-r last:border-0 align-middle font-semibold">
+                                                    <TableCell className="w-[50px] min-w-[50px] text-center p-2 align-middle font-semibold">
                                                         {row.id}
                                                     </TableCell>
-                                                    <TableCell className="whitespace-normal text-left min-w-[200px] max-w-[350px] p-2 border-r last:border-0 align-middle font-medium">
+                                                    <TableCell className="whitespace-normal text-left min-w-[200px] max-w-[350px] p-2 align-middle font-medium">
                                                         <div className="line-clamp-2 break-words text-left">
                                                             {row.name}
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="w-[80px] min-w-[80px] text-center p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[80px] min-w-[80px] text-center p-2 align-middle">
                                                         {row.countTC}
                                                     </TableCell>
                                                     {isShowExtraColumn && (
                                                         <>
-                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.countLH}</TableCell>
-                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.scoreCC}</TableCell>
-                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.scoreBT}</TableCell>
-                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.scoreGK}</TableCell>
-                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.scoreCK}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 align-middle">{row.countLH}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 align-middle">{row.scoreCC}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 align-middle">{row.scoreBT}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 align-middle">{row.scoreGK}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 align-middle">{row.scoreCK}</TableCell>
                                                         </>
                                                     )}
-                                                    <TableCell className="w-[100px] min-w-[100px] text-center p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[100px] min-w-[100px] text-center p-2 align-middle">
                                                         {row.scoreT10}
                                                     </TableCell>
-                                                    <TableCell className="w-[90px] min-w-[90px] text-center p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[90px] min-w-[90px] text-center p-2 align-middle">
                                                         <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-bold ring-1 ring-inset ${getBadgeColorClass(row.scoreCh)}`}>
                                                             {row.scoreCh || ''}
                                                         </span>
                                                     </TableCell>
-                                                    <TableCell className="w-[110px] min-w-[110px] text-center p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[110px] min-w-[110px] text-center p-2 align-middle">
                                                         <select
                                                             disabled={originalScoreCh === 'A'}
                                                             value={currentValue}
@@ -235,10 +235,10 @@ const RecommendDialog: React.FC = () => {
                                                             ))}
                                                         </select>
                                                     </TableCell>
-                                                    <TableCell className="w-[100px] min-w-[100px] text-center p-2 border-r last:border-0 align-middle font-bold text-indigo-600 dark:text-indigo-400">
+                                                    <TableCell className="w-[100px] min-w-[100px] text-center p-2 align-middle font-bold text-indigo-600 dark:text-indigo-400">
                                                         {row.scorePredict.toFixed(2)}
                                                     </TableCell>
-                                                    <TableCell className="w-[90px] min-w-[90px] text-center p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[90px] min-w-[90px] text-center p-2 align-middle">
                                                         {(row.scoreChChange || row.scoreT10Original !== undefined) && (
                                                             <Button
                                                                 variant="ghost"
