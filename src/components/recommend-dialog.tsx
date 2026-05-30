@@ -66,7 +66,7 @@ const RecommendDialog: React.FC = () => {
         if (scores.length === 0) return;
         setLoading(true);
         try {
-            const res = await fetch('/api/recommend', {
+            const res = await fetch('/vku-score-v3/api/recommend', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -84,12 +84,16 @@ const RecommendDialog: React.FC = () => {
         }
     };
 
+    const scoresHash = useMemo(() => {
+        return scores.map(s => `${s.id}-${s.scoreCh}-${s.scoreChChange || ''}`).join(',');
+    }, [scores]);
+
     // Gọi API mỗi khi mở dialog hoặc thay đổi scores
     useEffect(() => {
         if (dialogs.recommend) {
             fetchRecommendations();
         }
-    }, [dialogs.recommend, scores]);
+    }, [dialogs.recommend, scoresHash]);
 
     const handleClose = () => {
         toggleDialog('recommend');
@@ -161,23 +165,23 @@ const RecommendDialog: React.FC = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-center font-bold">ID</TableHead>
-                                        <TableHead className="text-left font-bold">Tên học phần</TableHead>
-                                        <TableHead className="text-center font-bold">Số tín chỉ</TableHead>
+                                        <TableHead className="w-[50px] min-w-[50px] text-center font-bold">ID</TableHead>
+                                        <TableHead className="whitespace-normal text-left min-w-[200px] max-w-[350px] font-bold">Tên học phần</TableHead>
+                                        <TableHead className="w-[80px] min-w-[80px] text-center font-bold">Số tín chỉ</TableHead>
                                         {isShowExtraColumn && (
                                             <>
-                                                <TableHead className="text-center font-bold">Lần học</TableHead>
-                                                <TableHead className="text-center font-bold">Chuyên cần</TableHead>
-                                                <TableHead className="text-center font-bold">Bài tập</TableHead>
-                                                <TableHead className="text-center font-bold">Giữa kỳ</TableHead>
-                                                <TableHead className="text-center font-bold">Cuối kỳ</TableHead>
+                                                <TableHead className="w-[85px] min-w-[85px] text-center font-bold">Lần học</TableHead>
+                                                <TableHead className="w-[85px] min-w-[85px] text-center font-bold">Chuyên cần</TableHead>
+                                                <TableHead className="w-[85px] min-w-[85px] text-center font-bold">Bài tập</TableHead>
+                                                <TableHead className="w-[85px] min-w-[85px] text-center font-bold">Giữa kỳ</TableHead>
+                                                <TableHead className="w-[85px] min-w-[85px] text-center font-bold">Cuối kỳ</TableHead>
                                             </>
                                         )}
-                                        <TableHead className="text-center font-bold">Điểm hệ 10</TableHead>
-                                        <TableHead className="text-center font-bold">Điểm chữ</TableHead>
-                                        <TableHead className="text-center font-bold">Thay đổi</TableHead>
-                                        <TableHead className="text-center font-bold">Dự đoán mới</TableHead>
-                                        <TableHead className="text-center font-bold">Hành động</TableHead>
+                                        <TableHead className="w-[100px] min-w-[100px] text-center font-bold">Điểm hệ 10</TableHead>
+                                        <TableHead className="w-[90px] min-w-[90px] text-center font-bold">Điểm chữ</TableHead>
+                                        <TableHead className="w-[110px] min-w-[110px] text-center font-bold">Thay đổi</TableHead>
+                                        <TableHead className="w-[100px] min-w-[100px] text-center font-bold">Dự đoán mới</TableHead>
+                                        <TableHead className="w-[90px] min-w-[90px] text-center font-bold">Hành động</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -186,36 +190,38 @@ const RecommendDialog: React.FC = () => {
                                             const originalScoreCh = row.scoreCh || 'F';
                                             const currentValue = row.scoreChChange || originalScoreCh;
                                             const options = scoreOptionsMap[originalScoreCh] || ['A', 'B', 'C', 'D', 'F'];
-
+ 
                                             return (
                                                 <TableRow key={row.id} className={`text-center ${getRowBgColor(row)}`}>
-                                                    <TableCell className="p-2 border-r last:border-0 align-middle font-semibold">
+                                                    <TableCell className="w-[50px] min-w-[50px] text-center p-2 border-r last:border-0 align-middle font-semibold">
                                                         {row.id}
                                                     </TableCell>
-                                                    <TableCell className="p-2 border-r last:border-0 align-middle text-left font-medium max-w-xs truncate">
-                                                        {row.name}
+                                                    <TableCell className="whitespace-normal text-left min-w-[200px] max-w-[350px] p-2 border-r last:border-0 align-middle font-medium">
+                                                        <div className="line-clamp-2 break-words text-left">
+                                                            {row.name}
+                                                        </div>
                                                     </TableCell>
-                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[80px] min-w-[80px] text-center p-2 border-r last:border-0 align-middle">
                                                         {row.countTC}
                                                     </TableCell>
                                                     {isShowExtraColumn && (
                                                         <>
-                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.countLH}</TableCell>
-                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.scoreCC}</TableCell>
-                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.scoreBT}</TableCell>
-                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.scoreGK}</TableCell>
-                                                            <TableCell className="p-2 border-r last:border-0 align-middle">{row.scoreCK}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.countLH}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.scoreCC}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.scoreBT}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.scoreGK}</TableCell>
+                                                            <TableCell className="w-[85px] min-w-[85px] text-center p-2 border-r last:border-0 align-middle">{row.scoreCK}</TableCell>
                                                         </>
                                                     )}
-                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[100px] min-w-[100px] text-center p-2 border-r last:border-0 align-middle">
                                                         {row.scoreT10}
                                                     </TableCell>
-                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[90px] min-w-[90px] text-center p-2 border-r last:border-0 align-middle">
                                                         <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-bold ring-1 ring-inset ${getBadgeColorClass(row.scoreCh)}`}>
                                                             {row.scoreCh || ''}
                                                         </span>
                                                     </TableCell>
-                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[110px] min-w-[110px] text-center p-2 border-r last:border-0 align-middle">
                                                         <select
                                                             disabled={originalScoreCh === 'A'}
                                                             value={currentValue}
@@ -229,10 +235,10 @@ const RecommendDialog: React.FC = () => {
                                                             ))}
                                                         </select>
                                                     </TableCell>
-                                                    <TableCell className="p-2 border-r last:border-0 align-middle font-bold text-indigo-600 dark:text-indigo-400">
+                                                    <TableCell className="w-[100px] min-w-[100px] text-center p-2 border-r last:border-0 align-middle font-bold text-indigo-600 dark:text-indigo-400">
                                                         {row.scorePredict.toFixed(2)}
                                                     </TableCell>
-                                                    <TableCell className="p-2 border-r last:border-0 align-middle">
+                                                    <TableCell className="w-[90px] min-w-[90px] text-center p-2 border-r last:border-0 align-middle">
                                                         {row.scoreChChange && (
                                                             <Button
                                                                 variant="ghost"
